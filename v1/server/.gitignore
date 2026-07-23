@@ -1,0 +1,15 @@
+/dist
+/node_modules
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# IDE
+.idea
+.vscode
+
+/.env
+
+.DS_Store

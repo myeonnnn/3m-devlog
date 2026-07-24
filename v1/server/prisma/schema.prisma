@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model DevLog {
+  id                   String      @id @default(uuid())
+  ownerId              String
+  logDate              DateTime    @db.Date
+  learnedNote          String
+  troubleshootingNote  String?
+  tomorrowTask         String?
+  tags                 DevLogTag[]
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+
+  @@index([ownerId])
+}
+
+model Tag {
+  id          String      @id @default(uuid())
+  normalized  String      @unique
+  displayName String
+  devLogs     DevLogTag[]
+}
+
+model DevLogTag {
+  devLogId String
+  tagId    String
+  devLog   DevLog @relation(fields: [devLogId], references: [id], onDelete: Cascade)
+  tag      Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([devLogId, tagId])
+}

@@ -63,3 +63,15 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+---
+
+## 3m-devlog 프로젝트 노트
+
+3분 개발 로그 서비스. 상세 스택/실행법은 [README.md](./README.md) 참고. v1은 view(Next.js)/server(NestJS) 완전 분리 구조.
+
+**재발 가능성 높은 함정:**
+- Node는 반드시 LTS(v24+) 사용. v18에서는 Next 16 typegen, tailwind oxide 네이티브 바이너리, Prisma 엔진이 다 깨짐.
+- Prisma 7: `schema.prisma`의 `generator client`에 `moduleFormat = "cjs"` 필수, `@prisma/adapter-pg` 드라이버 어댑터 없으면 클라이언트 생성 자체가 실패함.
+- Nest 서버 기본 포트가 3000이라 Next 개발 서버(3000)와 충돌 — server는 `PORT=3001`로 띄움.
+- 소셜 로그인 미구현 상태라 `ownerId`는 `x-user-id` 헤더로 임시 전달 (서버: `OwnerId` 데코레이터, 프론트: `lib/user-id.ts`).

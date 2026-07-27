@@ -1,6 +1,6 @@
 # 3m-devlog v1
 
-개발자가 오늘 배운 점과 해결한 버그를 3분 만에 기록하고, 검색/태그로 다시 찾아보는 서비스. (요구사항: [`3m-log 요구사항_20260723.md`](../3m-log%20요구사항_20260723.md), 도메인 모델: [`docs/domain-model.md`](../docs/domain-model.md))
+개발자가 오늘 배운 점과 해결한 버그를 3분 만에 기록하고, 검색/태그로 다시 찾아보는 서비스. (요구사항: [`3m-log 요구사항_20260723.md`](./3m-log%20요구사항_20260723.md), 도메인 모델: [`docs/domain-model.md`](./docs/domain-model.md))
 
 v1은 학습 목적으로 view(Next.js)와 server(NestJS)를 완전히 독립된 프로젝트로 구성한 버전이다.
 
@@ -73,7 +73,7 @@ npm run dev                   # http://localhost:3000
 
 ### server
 
-- `prisma/schema.prisma`: `DevLog` – `Tag` – `DevLogTag`(조인 테이블) 다대다 구조. Tag를 별도 애그리거트로 두지 않고 정규화 저장만 하는 이유는 [도메인 모델 문서](../docs/domain-model.md#32-devlog-aggregate-devlog-context--핵심-애그리거트) 참고.
+- `prisma/schema.prisma`: `DevLog` – `Tag` – `DevLogTag`(조인 테이블) 다대다 구조. Tag를 별도 애그리거트로 두지 않고 정규화 저장만 하는 이유는 [도메인 모델 문서](./docs/domain-model.md#32-devlog-aggregate-devlog-context--핵심-애그리거트) 참고.
 - `src/prisma/`: `PrismaService`/`PrismaModule` (전역 모듈)
 - `src/devlog/`: 컨트롤러/서비스/DTO
 - `src/common/decorators/owner-id.decorator.ts`: 임시 인증 스텁
@@ -91,4 +91,4 @@ npm run dev                   # http://localhost:3000
 
 - Prisma 7부터 클라이언트가 기본 ESM으로 생성되고 드라이버 어댑터가 필수라, `schema.prisma`의 `generator client`에 `moduleFormat = "cjs"`를 지정하고 `@prisma/adapter-pg`를 명시적으로 연결했다.
 - 소셜 로그인(Google/Kakao) 구현 후 User 테이블/인증 미들웨어 추가 필요.
-- 인기 태그 집계 기준(본인 글 vs 전체 사용자), 검색 대상 범위 등은 [도메인 모델 문서 7장](../docs/domain-model.md#7-구현-전-확인-필요-사항)에 열린 질문으로 남아있음.
+- 인기 태그 집계 기준(본인 글 vs 전체 사용자), 검색 대상 범위 등은 [도메인 모델 문서 7장](./docs/domain-model.md#7-구현-전-확인-필요-사항)에 열린 질문으로 남아있음.

@@ -145,15 +145,15 @@ classDiagram
 
 ## 6. Read Model (애그리거트 외부, 조회 전용)
 
-- **검색**: `ownerId` 스코프 내에서 키워드로 `learnedNote` / `troubleshootingNote` / `tomorrowTask` 조회.
-- **인기 태그 집계**: `ownerId` 스코프 내 `tags.normalized` 별 빈도 집계.
+- **검색**: `ownerId` 스코프 내에서 키워드로 `learnedNote` / `troubleshootingNote` / `tomorrowTask` 조회 (세 필드 모두 대상, 확정).
+- **인기 태그 집계**: `ownerId` 스코프가 아니라 **전체 사용자** 기준 `tags.normalized` 별 빈도 집계 (확정). `ownerId`를 요구하지 않는 공개 조회.
 
 → 두 기능 모두 DevLog 애그리거트의 상태를 변경하지 않는 순수 조회이므로 CQRS의 Query 사이드로 분리 가능 (지금 단계에서는 단순 조회 쿼리로 충분, 별도 프로젝션 테이블은 불필요).
 
-## 7. 구현 전 확인 필요 사항
+## 7. 확인된 사항
 
-이전 요구사항 분석에서 제기된 질문 중 애그리거트/모델 설계에 직접 영향을 주는 항목:
+이전 요구사항 분석에서 제기됐던 질문들의 결론:
 
-1. **검색 범위**: `learnedNote`/`troubleshootingNote`/`tomorrowTask` 중 어디까지 전문검색 대상인가 → Read Model 쿼리 필드 범위 결정에 필요.
-2. **인기 태그 집계 기준**: 본인 글 기준(현재 가정) vs 전체 사용자 기준 → 전체 기준이라면 `ownerId` 스코프를 벗어나는 별도 집계 쿼리/인덱스 필요.
-3. **태그 정규화 저장 방식**: `displayName` 보존 여부 확정 (현재 모델은 최초 입력값을 `displayName`으로 보존, `normalized`로만 중복 판정).
+1. **검색 범위**: `learnedNote`/`troubleshootingNote`/`tomorrowTask` 모두 전문검색 대상 (확정).
+2. **인기 태그 집계 기준**: 전체 사용자 기준으로 확정. `ownerId` 스코프를 두지 않음.
+3. **태그 정규화 저장 방식**: 최초 입력값을 `displayName`으로 보존, `normalized`로만 중복 판정 (확정, 구현됨).

@@ -107,10 +107,9 @@ export class DevLogService {
     await this.prisma.devLog.delete({ where: { id } });
   }
 
-  async popularTags(ownerId: string, limit = 10) {
+  async popularTags(limit = 10) {
     const grouped = await this.prisma.devLogTag.groupBy({
       by: ['tagId'],
-      where: { devLog: { ownerId } },
       _count: { tagId: true },
       orderBy: { _count: { tagId: 'desc' } },
       take: limit,

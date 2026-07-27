@@ -56,13 +56,13 @@ npm run dev                   # http://localhost:3000
 
 ## API (server)
 
-베이스 경로: `/devlogs`. 모든 요청에 `x-user-id` 헤더 필요 (없으면 400).
+베이스 경로: `/devlogs`. `/devlogs/tags/popular`를 제외한 모든 요청에 `x-user-id` 헤더 필요 (없으면 400).
 
 | Method | Path | 설명 |
 |---|---|---|
 | POST | `/devlogs` | 생성 |
 | GET | `/devlogs?search=&tag=` | 목록 조회 (키워드 검색 / 태그 필터) |
-| GET | `/devlogs/tags/popular` | 인기 태그 집계 (owner 스코프) |
+| GET | `/devlogs/tags/popular` | 인기 태그 집계 (전체 사용자 기준, 인증 불필요) |
 | GET | `/devlogs/:id` | 단건 조회 |
 | PATCH | `/devlogs/:id` | 수정 |
 | DELETE | `/devlogs/:id` | 삭제 |

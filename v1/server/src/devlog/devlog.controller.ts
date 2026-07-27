@@ -30,8 +30,8 @@ export class DevLogController {
   }
 
   @Get('tags/popular')
-  popularTags(@OwnerId() ownerId: string) {
-    return this.devLogService.popularTags(ownerId);
+  popularTags() {
+    return this.devLogService.popularTags();
   }
 
   @Get(':id')

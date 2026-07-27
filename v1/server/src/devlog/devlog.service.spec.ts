@@ -222,7 +222,7 @@ describe('DevLogService', () => {
         { id: 'tag-nest', displayName: 'Nest', normalized: 'nest' },
       ]);
 
-      const result = await service.popularTags(ownerId);
+      const result = await service.popularTags();
 
       expect(result).toEqual([
         { tag: 'React', count: 2 },

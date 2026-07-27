@@ -75,6 +75,11 @@ npm run dev                   # http://localhost:3000
 cd v1/server
 npm test          # 유닛 테스트 (DevLogService, Prisma는 mock)
 npm run test:e2e  # e2e 테스트 (실제 Postgres에 접속, docker compose up 필요)
+
+# 또는 Makefile로:
+make test         # 유닛 테스트
+make test-e2e     # Postgres 기동 후 e2e 테스트
+make test-all     # 유닛 + e2e
 ```
 
 - 유닛 테스트: 태그 정규화/중복 제거, 소유권 검증(403/404), 인기 태그 집계 로직 (`src/devlog/devlog.service.spec.ts`)

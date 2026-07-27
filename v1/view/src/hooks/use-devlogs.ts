@@ -1,0 +1,59 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { devlogApi } from '@/lib/devlog-api';
+import {
+  CreateDevLogInput,
+  DevLogFilter,
+  UpdateDevLogInput,
+} from '@/lib/types';
+
+const devlogKeys = {
+  all: ['devlogs'] as const,
+  list: (filter: DevLogFilter) => [...devlogKeys.all, 'list', filter] as const,
+  detail: (id: string) => [...devlogKeys.all, 'detail', id] as const,
+  popularTags: () => [...devlogKeys.all, 'popularTags'] as const,
+};
+
+export function useDevLogsQuery(filter: DevLogFilter) {
+  return useQuery({
+    queryKey: devlogKeys.list(filter),
+    queryFn: () => devlogApi.list(filter),
+  });
+}
+
+export function usePopularTagsQuery() {
+  return useQuery({
+    queryKey: devlogKeys.popularTags(),
+    queryFn: () => devlogApi.popularTags(),
+  });
+}
+
+export function useCreateDevLog() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CreateDevLogInput) => devlogApi.create(input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: devlogKeys.all });
+    },
+  });
+}
+
+export function useUpdateDevLog() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: UpdateDevLogInput }) =>
+      devlogApi.update(id, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: devlogKeys.all });
+    },
+  });
+}
+
+export function useDeleteDevLog() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => devlogApi.remove(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: devlogKeys.all });
+    },
+  });
+}

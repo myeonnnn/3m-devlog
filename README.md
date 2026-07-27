@@ -1,6 +1,6 @@
 # 3m-devlog v1
 
-개발자가 오늘 배운 점과 해결한 버그를 3분 만에 기록하고, 검색/태그로 다시 찾아보는 서비스. (요구사항: [`3m-log 요구사항_20260723.md`](./3m-log%20요구사항_20260723.md), 도메인 모델: [`docs/domain-model.md`](./docs/domain-model.md))
+개발자가 오늘 배운 점과 해결한 버그를 3분 만에 기록하고, 검색/태그로 다시 찾아보는 서비스. (요구사항: [`requirements/3m-log 요구사항_20260723.md`](./requirements/3m-log%20요구사항_20260723.md), 도메인 모델: [`docs/domain-model.md`](./docs/domain-model.md))
 
 v1은 학습 목적으로 view(Next.js)와 server(NestJS)를 완전히 독립된 프로젝트로 구성한 버전이다.
 

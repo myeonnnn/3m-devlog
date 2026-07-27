@@ -72,6 +72,9 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 **재발 가능성 높은 함정:**
 - Node는 반드시 LTS(v24+) 사용. v18에서는 Next 16 typegen, tailwind oxide 네이티브 바이너리, Prisma 엔진이 다 깨짐.
+- `nvm use default`는 다음 Bash 호출에 안 남음(툴이 명령마다 새 셸 실행) — Node 필요한 커맨드엔 매번 `source $(brew --prefix nvm)/nvm.sh && nvm use default &&`를 같이 붙일 것.
 - Prisma 7: `schema.prisma`의 `generator client`에 `moduleFormat = "cjs"` 필수, `@prisma/adapter-pg` 드라이버 어댑터 없으면 클라이언트 생성 자체가 실패함.
 - Nest 서버 기본 포트가 3000이라 Next 개발 서버(3000)와 충돌 — server는 `PORT=3001`로 띄움.
 - 소셜 로그인 미구현 상태라 `ownerId`는 `x-user-id` 헤더로 임시 전달 (서버: `OwnerId` 데코레이터, 프론트: `lib/user-id.ts`).
+- 이 레포는 여러 워크트리 세션이 동시에 `v1`에 푸시할 수 있음 — push 전 `git fetch`로 원격이 앞서 있는지 확인, rejected면 `git pull origin v1 --no-rebase` 후 재푸시.
+- `v1/server` 테스트: `make test`(유닛) / `make test-e2e`(Postgres 기동 후 e2e) / `make test-all`.

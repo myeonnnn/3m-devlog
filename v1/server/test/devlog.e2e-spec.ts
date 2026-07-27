@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
@@ -15,9 +17,14 @@ interface DevLogResponse {
 describe('DevLog (e2e)', () => {
   let app: INestApplication<App>;
   let prisma: PrismaService;
+  let jwtService: JwtService;
 
   const ownerId = `e2e-owner-${Date.now()}`;
   const otherOwnerId = `e2e-owner-other-${Date.now()}`;
+
+  function cookieFor(userId: string) {
+    return `access_token=${jwtService.sign({ sub: userId })}`;
+  }
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -25,12 +32,14 @@ describe('DevLog (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.use(cookieParser());
     app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, transform: true }),
     );
     await app.init();
 
     prisma = moduleFixture.get(PrismaService);
+    jwtService = moduleFixture.get(JwtService);
   });
 
   afterAll(async () => {
@@ -40,14 +49,14 @@ describe('DevLog (e2e)', () => {
     await app.close();
   });
 
-  it('x-user-id 헤더가 없으면 400을 반환한다', async () => {
-    await request(app.getHttpServer()).get('/devlogs').expect(400);
+  it('로그인(쿠키) 없이 요청하면 401을 반환한다', async () => {
+    await request(app.getHttpServer()).get('/devlogs').expect(401);
   });
 
   it('learnedNote 없이 생성하면 400을 반환한다', async () => {
     await request(app.getHttpServer())
       .post('/devlogs')
-      .set('x-user-id', ownerId)
+      .set('Cookie', cookieFor(ownerId))
       .send({ logDate: '2026-07-27' })
       .expect(400);
   });
@@ -55,7 +64,7 @@ describe('DevLog (e2e)', () => {
   it('DevLog를 생성하면 태그가 대소문자 무관하게 정규화되어 저장된다', async () => {
     const res = await request(app.getHttpServer())
       .post('/devlogs')
-      .set('x-user-id', ownerId)
+      .set('Cookie', cookieFor(ownerId))
       .send({
         logDate: '2026-07-27',
         learnedNote: 'e2e 테스트로 배운 것',
@@ -72,7 +81,7 @@ describe('DevLog (e2e)', () => {
     const res = await request(app.getHttpServer())
       .get('/devlogs')
       .query({ tag: 'react' })
-      .set('x-user-id', ownerId)
+      .set('Cookie', cookieFor(ownerId))
       .expect(200);
 
     const devLogs = res.body as DevLogResponse[];
@@ -84,7 +93,7 @@ describe('DevLog (e2e)', () => {
     const res = await request(app.getHttpServer())
       .get('/devlogs')
       .query({ search: 'CORS' })
-      .set('x-user-id', ownerId)
+      .set('Cookie', cookieFor(ownerId))
       .expect(200);
 
     const devLogs = res.body as DevLogResponse[];
@@ -96,24 +105,24 @@ describe('DevLog (e2e)', () => {
   it('다른 사용자는 조회할 수 없다 (403)', async () => {
     const listRes = await request(app.getHttpServer())
       .get('/devlogs')
-      .set('x-user-id', ownerId);
+      .set('Cookie', cookieFor(ownerId));
     const [devLog] = listRes.body as DevLogResponse[];
 
     await request(app.getHttpServer())
       .get(`/devlogs/${devLog.id}`)
-      .set('x-user-id', otherOwnerId)
+      .set('Cookie', cookieFor(otherOwnerId))
       .expect(403);
   });
 
   it('수정 시 태그를 완전히 교체한다', async () => {
     const listRes = await request(app.getHttpServer())
       .get('/devlogs')
-      .set('x-user-id', ownerId);
+      .set('Cookie', cookieFor(ownerId));
     const [devLog] = listRes.body as DevLogResponse[];
 
     const res = await request(app.getHttpServer())
       .patch(`/devlogs/${devLog.id}`)
-      .set('x-user-id', ownerId)
+      .set('Cookie', cookieFor(ownerId))
       .send({ tags: ['typescript'] })
       .expect(200);
 
@@ -124,17 +133,17 @@ describe('DevLog (e2e)', () => {
   it('삭제 후에는 404를 반환한다', async () => {
     const listRes = await request(app.getHttpServer())
       .get('/devlogs')
-      .set('x-user-id', ownerId);
+      .set('Cookie', cookieFor(ownerId));
     const [devLog] = listRes.body as DevLogResponse[];
 
     await request(app.getHttpServer())
       .delete(`/devlogs/${devLog.id}`)
-      .set('x-user-id', ownerId)
+      .set('Cookie', cookieFor(ownerId))
       .expect(204);
 
     await request(app.getHttpServer())
       .get(`/devlogs/${devLog.id}`)
-      .set('x-user-id', ownerId)
+      .set('Cookie', cookieFor(ownerId))
       .expect(404);
   });
 });

@@ -8,8 +8,10 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { OwnerId } from '../common/decorators/owner-id.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { DevLogService } from './devlog.service';
 import { CreateDevLogDto } from './dto/create-devlog.dto';
 import { UpdateDevLogDto } from './dto/update-devlog.dto';
@@ -20,11 +22,13 @@ export class DevLogController {
   constructor(private readonly devLogService: DevLogService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   create(@OwnerId() ownerId: string, @Body() dto: CreateDevLogDto) {
     return this.devLogService.create(ownerId, dto);
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   findAll(@OwnerId() ownerId: string, @Query() query: FindDevLogsQueryDto) {
     return this.devLogService.findAll(ownerId, query);
   }
@@ -35,11 +39,13 @@ export class DevLogController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   findOne(@OwnerId() ownerId: string, @Param('id') id: string) {
     return this.devLogService.findOne(ownerId, id);
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   update(
     @OwnerId() ownerId: string,
     @Param('id') id: string,
@@ -49,6 +55,7 @@ export class DevLogController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(204)
   remove(@OwnerId() ownerId: string, @Param('id') id: string) {
     return this.devLogService.remove(ownerId, id);

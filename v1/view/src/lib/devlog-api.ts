@@ -5,33 +5,7 @@ import {
   PopularTag,
   UpdateDevLogInput,
 } from './types';
-import { getOrCreateUserId } from './user-id';
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3001';
-
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      'x-user-id': getOrCreateUserId(),
-      ...init.headers,
-    },
-  });
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => null);
-    const message = body?.message ?? res.statusText;
-    throw new Error(Array.isArray(message) ? message.join(', ') : message);
-  }
-
-  if (res.status === 204) {
-    return undefined as T;
-  }
-
-  return res.json() as Promise<T>;
-}
+import { request } from './api-client';
 
 export const devlogApi = {
   list(filter: DevLogFilter = {}): Promise<DevLog[]> {

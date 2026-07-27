@@ -13,8 +13,13 @@ import { SearchBar } from '@/components/devlog/search-bar';
 import { TagChips } from '@/components/devlog/tag-chips';
 import { DevLogList } from '@/components/devlog/devlog-list';
 import { DevLogFormModal } from '@/components/devlog/devlog-form-modal';
+import { LoginScreen } from '@/components/auth/login-screen';
+import { useMeQuery, useLogout } from '@/hooks/use-auth';
 
 export default function Home() {
+  const meQuery = useMeQuery();
+  const logout = useLogout();
+
   const [search, setSearch] = useState('');
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [editingDevLog, setEditingDevLog] = useState<DevLog | null>(null);
@@ -53,12 +58,32 @@ export default function Home() {
     deleteDevLog.mutate(devLog.id);
   }
 
+  if (meQuery.isLoading) {
+    return null;
+  }
+
+  if (!meQuery.data) {
+    return <LoginScreen />;
+  }
+
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 py-8">
       <header className="flex items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold text-neutral-100">
-          3분 개발 로그
-        </h1>
+        <div>
+          <h1 className="text-xl font-semibold text-neutral-100">
+            3분 개발 로그
+          </h1>
+          <p className="text-sm text-neutral-400">
+            {meQuery.data.displayName}님{' '}
+            <button
+              type="button"
+              onClick={() => logout.mutate()}
+              className="underline hover:text-neutral-100"
+            >
+              로그아웃
+            </button>
+          </p>
+        </div>
         <button
           type="button"
           onClick={openCreateForm}

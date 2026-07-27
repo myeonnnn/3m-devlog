@@ -25,10 +25,8 @@ v1/
 
 요구사항 대비 진행 상황 체크리스트: [`requirements/tasks.md`](./requirements/tasks.md)
 
-- **DevLog** 도메인만 구현 (생성/조회/수정/삭제, 태그 필터, 키워드 검색, 인기 태그 집계)
-- 소셜 로그인(Google/Kakao)은 아직 미구현. 인증 전이라 `ownerId`는 요청 헤더 `x-user-id`로 임시 전달한다.
-  - 프론트는 브라우저 `localStorage`에 임의 UUID를 발급해 자동으로 이 헤더를 붙인다 (`view/src/lib/user-id.ts`).
-  - 실제 로그인이 붙으면 서버의 `OwnerId` 데코레이터(`server/src/common/decorators/owner-id.decorator.ts`)와 프론트의 `user-id.ts`를 인증된 사용자 컨텍스트로 교체하면 된다.
+- **DevLog** 도메인 구현 (생성/조회/수정/삭제, 태그 필터, 키워드 검색, 인기 태그 집계)
+- **소셜 로그인** (Google 구현·테스트 완료, Kakao는 코드까지만 구현 — 실제 앱 자격증명 필요). JWT를 httpOnly 쿠키로 발급해 로그인 상태 유지.
 
 ## 로컬 실행
 
@@ -44,6 +42,11 @@ npm run start:dev             # http://localhost:3001 (PORT로 변경 가능)
 
 `DATABASE_URL`은 `.env`에 있으며 위 `docker-compose.yml`의 계정과 맞춰져 있다.
 
+**소셜 로그인 자격증명** (`.env`에 추가):
+- Google: [Cloud Console](https://console.cloud.google.com/apis/credentials)에서 OAuth 클라이언트 생성 (Web application), 승인된 리디렉션 URI `http://localhost:3001/auth/google/callback` 등록 → `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`에 입력. OAuth consent screen이 "Testing" 상태면 로그인할 구글 계정을 Test users에 추가해야 함.
+- Kakao: [Kakao Developers](https://developers.kakao.com)에서 앱 생성 → 카카오 로그인 활성화, Redirect URI `http://localhost:3001/auth/kakao/callback` 등록 → REST API 키를 `KAKAO_CLIENT_ID`에 입력. "개발 중" 상태면 로그인할 계정을 앱 팀원으로 추가해야 함.
+- 자격증명이 비어있으면(placeholder) 서버는 뜨지만 로그인 시도 시 Google/Kakao 쪽에서 에러가 남.
+
 ### 2. view
 
 ```bash
@@ -56,7 +59,19 @@ npm run dev                   # http://localhost:3000
 
 ## API (server)
 
-베이스 경로: `/devlogs`. `/devlogs/tags/popular`를 제외한 모든 요청에 `x-user-id` 헤더 필요 (없으면 400).
+### 인증
+
+| Method | Path | 설명 |
+|---|---|---|
+| GET | `/auth/google` | 구글 로그인 시작 (리다이렉트) |
+| GET | `/auth/google/callback` | 구글 콜백, JWT를 httpOnly 쿠키로 발급 후 `FRONTEND_URL`로 리다이렉트 |
+| GET | `/auth/kakao` / `/auth/kakao/callback` | 카카오 로그인 (동일 흐름) |
+| GET | `/auth/me` | 현재 로그인 사용자 정보 (인증 필요) |
+| POST | `/auth/logout` | 로그아웃 (쿠키 삭제) |
+
+### DevLog
+
+베이스 경로: `/devlogs`. `/devlogs/tags/popular`를 제외한 모든 요청은 로그인(쿠키) 필요, 없으면 401.
 
 | Method | Path | 설명 |
 |---|---|---|
@@ -69,7 +84,7 @@ npm run dev                   # http://localhost:3000
 
 - 소유자가 아니면 403, 존재하지 않으면 404.
 - 태그는 대소문자 무관하게 정규화되어 중복 없이 저장되고, `displayName`은 최초 입력값을 유지한다.
-- Postman으로 테스트하려면 `server/postman_collection.json`을 임포트.
+- Postman으로 테스트하려면 `server/postman_collection.json`을 임포트 (단, 로그인 라우트는 브라우저 리다이렉트 흐름이라 Postman만으로는 전체 플로우 테스트가 어려움 — 브라우저에서 로그인 후 쿠키를 복사해 사용).
 
 ## 테스트 (server)
 
@@ -95,19 +110,22 @@ make test-all     # 유닛 + e2e
 - `prisma/schema.prisma`: `DevLog` – `Tag` – `DevLogTag`(조인 테이블) 다대다 구조. Tag를 별도 애그리거트로 두지 않고 정규화 저장만 하는 이유는 [도메인 모델 문서](./docs/domain-model.md#32-devlog-aggregate-devlog-context--핵심-애그리거트) 참고.
 - `src/prisma/`: `PrismaService`/`PrismaModule` (전역 모듈)
 - `src/devlog/`: 컨트롤러/서비스/DTO
-- `src/common/decorators/owner-id.decorator.ts`: 임시 인증 스텁
+- `src/users/`: `User` 조회/find-or-create (Identity Context)
+- `src/auth/`: Passport 전략(Google/Kakao/JWT), JWT 발급, 로그인/콜백/me/logout 컨트롤러
+- `src/common/decorators/owner-id.decorator.ts`: `JwtAuthGuard` 통과 후 `request.user.id`를 꺼내는 파라미터 데코레이터
 
 ### view
 
 프레젠테이션과 비즈니스 로직(데이터 패칭/뮤테이션)을 계층으로 분리했다.
 
-- `src/lib/`: 도메인 타입, 순수 fetch API 클라이언트, 임시 user-id 발급
-- `src/hooks/use-devlogs.ts`: React Query 훅 (조회/생성/수정/삭제) — 비즈니스 로직 계층
-- `src/components/devlog/`: 프레젠테이션 전용 컴포넌트 (props/콜백으로만 동작, 데이터 패칭 없음)
-- `src/app/page.tsx`: 위 훅과 컴포넌트를 조립하는 얇은 조합 계층
+- `src/lib/`: 도메인 타입, 순수 fetch API 클라이언트(`api-client.ts`, `devlog-api.ts`, `auth-api.ts`)
+- `src/hooks/use-devlogs.ts`, `use-auth.ts`: React Query 훅 — 비즈니스 로직 계층
+- `src/components/devlog/`, `src/components/auth/`: 프레젠테이션 전용 컴포넌트 (props/콜백으로만 동작, 데이터 패칭 없음)
+- `src/app/page.tsx`: 로그인 여부에 따라 `LoginScreen` 또는 DevLog 피드를 조립하는 얇은 조합 계층
 
 ## 알아두어야 할 점 / 다음 단계
 
 - Prisma 7부터 클라이언트가 기본 ESM으로 생성되고 드라이버 어댑터가 필수라, `schema.prisma`의 `generator client`에 `moduleFormat = "cjs"`를 지정하고 `@prisma/adapter-pg`를 명시적으로 연결했다.
-- 소셜 로그인(Google/Kakao) 구현 후 User 테이블/인증 미들웨어 추가 필요.
-- 인기 태그 집계 기준(본인 글 vs 전체 사용자), 검색 대상 범위 등은 [도메인 모델 문서 7장](./docs/domain-model.md#7-구현-전-확인-필요-사항)에 열린 질문으로 남아있음.
+- Passport 전략(Google/Kakao)은 생성자에서 `clientID`가 비어있으면 서버 부팅 자체가 실패하므로, 자격증명 없을 때도 placeholder 값을 채워둔다.
+- Kakao는 실제 로그인 테스트 전(자격증명 미보유). 코드 흐름은 Google과 동일.
+- 인기 태그 집계 기준(전체 사용자로 확정), 검색 대상 범위(전체 필드로 확정) 등은 [도메인 모델 문서 7장](./docs/domain-model.md#7-확인된-사항) 참고.

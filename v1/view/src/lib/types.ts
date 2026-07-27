@@ -29,3 +29,9 @@ export interface PopularTag {
   tag: string;
   count: number;
 }
+
+export interface CurrentUser {
+  id: string;
+  displayName: string;
+  email: string | null;
+}

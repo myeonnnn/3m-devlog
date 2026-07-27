@@ -1,0 +1,117 @@
+{
+  "info": {
+    "name": "3m-devlog (v1 server)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3001" },
+    { "key": "userId", "value": "user-1" },
+    { "key": "devLogId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Create DevLog",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-user-id", "value": "{{userId}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"logDate\": \"2026-07-24\",\n  \"learnedNote\": \"Prisma 드라이버 어댑터 학습\",\n  \"troubleshootingNote\": \"ESM 이슈 해결\",\n  \"tomorrowTask\": \"테스트 작성\",\n  \"tags\": [\"React\", \"react\", \"#Nest\"]\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/devlogs", "host": ["{{baseUrl}}"], "path": ["devlogs"] }
+      }
+    },
+    {
+      "name": "List DevLogs",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "x-user-id", "value": "{{userId}}" }],
+        "url": { "raw": "{{baseUrl}}/devlogs", "host": ["{{baseUrl}}"], "path": ["devlogs"] }
+      }
+    },
+    {
+      "name": "List DevLogs - filter by tag",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "x-user-id", "value": "{{userId}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/devlogs?tag=react",
+          "host": ["{{baseUrl}}"],
+          "path": ["devlogs"],
+          "query": [{ "key": "tag", "value": "react" }]
+        }
+      }
+    },
+    {
+      "name": "List DevLogs - search keyword",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "x-user-id", "value": "{{userId}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/devlogs?search=CORS",
+          "host": ["{{baseUrl}}"],
+          "path": ["devlogs"],
+          "query": [{ "key": "search", "value": "CORS" }]
+        }
+      }
+    },
+    {
+      "name": "Popular Tags",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "x-user-id", "value": "{{userId}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/devlogs/tags/popular",
+          "host": ["{{baseUrl}}"],
+          "path": ["devlogs", "tags", "popular"]
+        }
+      }
+    },
+    {
+      "name": "Get DevLog by id",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "x-user-id", "value": "{{userId}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/devlogs/{{devLogId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["devlogs", "{{devLogId}}"]
+        }
+      }
+    },
+    {
+      "name": "Update DevLog",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-user-id", "value": "{{userId}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"learnedNote\": \"수정된 내용\",\n  \"tags\": [\"typescript\"]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/devlogs/{{devLogId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["devlogs", "{{devLogId}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete DevLog",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "x-user-id", "value": "{{userId}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/devlogs/{{devLogId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["devlogs", "{{devLogId}}"]
+        }
+      }
+    }
+  ]
+}

@@ -23,6 +23,8 @@ v1/
 
 ## 현재 구현 범위
 
+요구사항 대비 진행 상황 체크리스트: [`requirements/tasks.md`](./requirements/tasks.md)
+
 - **DevLog** 도메인만 구현 (생성/조회/수정/삭제, 태그 필터, 키워드 검색, 인기 태그 집계)
 - 소셜 로그인(Google/Kakao)은 아직 미구현. 인증 전이라 `ownerId`는 요청 헤더 `x-user-id`로 임시 전달한다.
   - 프론트는 브라우저 `localStorage`에 임의 UUID를 발급해 자동으로 이 헤더를 붙인다 (`view/src/lib/user-id.ts`).

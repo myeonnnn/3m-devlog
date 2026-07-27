@@ -69,6 +69,18 @@ npm run dev                   # http://localhost:3000
 - 태그는 대소문자 무관하게 정규화되어 중복 없이 저장되고, `displayName`은 최초 입력값을 유지한다.
 - Postman으로 테스트하려면 `server/postman_collection.json`을 임포트.
 
+## 테스트 (server)
+
+```bash
+cd v1/server
+npm test          # 유닛 테스트 (DevLogService, Prisma는 mock)
+npm run test:e2e  # e2e 테스트 (실제 Postgres에 접속, docker compose up 필요)
+```
+
+- 유닛 테스트: 태그 정규화/중복 제거, 소유권 검증(403/404), 인기 태그 집계 로직 (`src/devlog/devlog.service.spec.ts`)
+- e2e 테스트: 실제 DB에 대해 생성→필터/검색→수정→삭제 전체 흐름 검증 (`test/devlog.e2e-spec.ts`), 테스트에서 만든 데이터는 종료 시 자동 정리됨
+- Prisma 7 클라이언트가 WASM 쿼리 컴파일러를 동적 import하기 때문에, e2e는 `NODE_OPTIONS=--experimental-vm-modules`로 실행한다 (`test:e2e` 스크립트에 포함됨).
+
 ## 아키텍처 노트
 
 ### server

@@ -15,6 +15,9 @@ function toDateInputValue(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
+const fieldClass =
+  'mt-1 w-full border border-line bg-ink px-3 py-2.5 text-sm text-text placeholder:text-dim placeholder:italic focus:border-signal focus:outline-none';
+
 export function DevLogFormModal({
   initial,
   isSubmitting,
@@ -59,59 +62,55 @@ export function DevLogFormModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-lg rounded-xl border border-neutral-800 bg-neutral-900 p-6 text-neutral-100">
-        <h2 className="text-lg font-semibold">
-          {initial ? '로그 수정' : '오늘의 로그 작성'}
-        </h2>
+    <div className="fixed inset-0 z-50 sm:flex sm:items-center sm:justify-center sm:bg-black/70 sm:p-4">
+      <div className="flex h-full flex-col overflow-y-auto border-line bg-panel p-5 sm:h-auto sm:max-h-[85vh] sm:w-full sm:max-w-lg sm:border">
+        <p className="text-sm text-dim">
+          $ vi {initial ? toLogFilename(initial.logDate) : logDate}.log
+        </p>
 
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+        <form onSubmit={handleSubmit} className="mt-4 flex flex-1 flex-col gap-4">
           <div>
-            <label className="text-sm text-neutral-400">날짜</label>
+            <label className="text-sm text-signal">date&gt;</label>
             <input
               type="date"
               value={logDate}
               onChange={(e) => setLogDate(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+              className={fieldClass}
             />
           </div>
 
           <div>
-            <label className="text-sm text-neutral-400">
-              💡 오늘 배운 점 (필수)
-            </label>
+            <label className="text-sm text-signal">learned&gt; (필수)</label>
             <textarea
               value={learnedNote}
               onChange={(e) => setLearnedNote(e.target.value)}
               rows={3}
-              className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+              className={fieldClass}
             />
           </div>
 
           <div>
-            <label className="text-sm text-neutral-400">
-              🐛 해결한 버그 / 시행착오
-            </label>
+            <label className="text-sm text-signal">bug&gt;</label>
             <textarea
               value={troubleshootingNote}
               onChange={(e) => setTroubleshootingNote(e.target.value)}
               rows={2}
-              className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+              className={fieldClass}
             />
           </div>
 
           <div>
-            <label className="text-sm text-neutral-400">📌 내일 할 일</label>
+            <label className="text-sm text-signal">next&gt;</label>
             <textarea
               value={tomorrowTask}
               onChange={(e) => setTomorrowTask(e.target.value)}
               rows={2}
-              className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+              className={fieldClass}
             />
           </div>
 
           <div>
-            <label className="text-sm text-neutral-400">태그</label>
+            <label className="text-sm text-signal">tags&gt;</label>
             <input
               type="text"
               value={tagInput}
@@ -123,20 +122,18 @@ export function DevLogFormModal({
                 }
               }}
               placeholder="# 붙이거나 입력 후 Enter"
-              className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+              className={fieldClass}
             />
             {tags.length > 0 && (
-              <ul className="mt-2 flex flex-wrap gap-2">
+              <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-dim">
                 {tags.map((tag) => (
-                  <li
-                    key={tag}
-                    className="flex items-center gap-1 rounded-full bg-neutral-800 px-2.5 py-0.5 text-xs text-emerald-300"
-                  >
+                  <li key={tag} className="flex items-center gap-1">
                     #{tag}
                     <button
                       type="button"
                       onClick={() => setTags(tags.filter((t) => t !== tag))}
-                      className="text-neutral-500 hover:text-neutral-200"
+                      aria-label={`${tag} 태그 삭제`}
+                      className="flex h-6 w-6 items-center justify-center text-dim hover:text-danger"
                     >
                       ×
                     </button>
@@ -147,27 +144,31 @@ export function DevLogFormModal({
           </div>
 
           {(validationError || error) && (
-            <p className="text-sm text-red-400">{validationError ?? error}</p>
+            <p className="text-sm text-danger">{validationError ?? error}</p>
           )}
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="mt-auto flex justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg px-4 py-2 text-sm text-neutral-400 hover:text-neutral-100"
+              className="flex h-11 items-center border border-line px-4 text-sm text-dim hover:text-text"
             >
-              취소
+              [ 취소 ]
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-emerald-400 disabled:opacity-50"
+              className="flex h-11 items-center border border-signal px-4 text-sm text-signal disabled:opacity-50"
             >
-              {isSubmitting ? '저장 중...' : '저장'}
+              {isSubmitting ? '[ 저장 중... ]' : '[ 저장 ]'}
             </button>
           </div>
         </form>
       </div>
     </div>
   );
+}
+
+function toLogFilename(date: string) {
+  return new Date(date).toISOString().slice(0, 10);
 }

@@ -18,13 +18,14 @@ export function TagChips({ tags, activeTag, onSelect }: TagChipsProps) {
             <button
               type="button"
               onClick={() => onSelect(isActive ? null : tag)}
-              className={`rounded-full px-3 py-1 text-sm transition-colors ${
+              className={`flex min-h-11 items-center gap-1.5 border px-3 text-sm ${
                 isActive
-                  ? 'bg-emerald-500 text-neutral-900'
-                  : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
+                  ? 'border-signal text-signal'
+                  : 'border-line text-dim hover:text-text'
               }`}
             >
-              #{tag} <span className="opacity-60">{count}</span>
+              #{tag}
+              <span className="text-xs italic opacity-70">{count}</span>
             </button>
           </li>
         );

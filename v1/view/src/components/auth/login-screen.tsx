@@ -2,29 +2,36 @@ import { authApi } from '@/lib/auth-api';
 
 export function LoginScreen() {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-8 px-4">
-      <div className="text-center">
-        <h1 className="text-2xl font-semibold text-neutral-100">
-          3분 개발 로그
-        </h1>
-        <p className="mt-2 text-sm text-neutral-400">
+    <div className="flex flex-1 items-center justify-center px-4">
+      <div className="w-full max-w-sm">
+        <p className="text-sm text-dim">
+          $ 3m-devlog --boot
+          <br />
+          initializing session...
+          <br />
+          awaiting authentication
+          <span className="ml-1 inline-block h-4 w-2 animate-pulse bg-signal align-middle" />
+        </p>
+
+        <h1 className="mt-6 text-xl font-bold text-text">3분 개발 로그</h1>
+        <p className="mt-1 text-sm text-dim">
           오늘 배운 점과 해결한 버그를 3분 만에 기록해요.
         </p>
-      </div>
 
-      <div className="flex w-full max-w-xs flex-col gap-3">
-        <a
-          href={authApi.googleLoginUrl}
-          className="flex items-center justify-center rounded-lg bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 hover:bg-neutral-200"
-        >
-          Google로 로그인
-        </a>
-        <a
-          href={authApi.kakaoLoginUrl}
-          className="flex items-center justify-center rounded-lg bg-[#FEE500] px-4 py-2.5 text-sm font-medium text-neutral-900 hover:brightness-95"
-        >
-          카카오로 로그인
-        </a>
+        <div className="mt-8 flex flex-col gap-3">
+          <a
+            href={authApi.googleLoginUrl}
+            className="flex h-11 items-center justify-center border border-line px-4 text-sm text-text hover:border-signal hover:text-signal"
+          >
+            [ Google 로그인 ]
+          </a>
+          <a
+            href={authApi.kakaoLoginUrl}
+            className="flex h-11 items-center justify-center border border-line px-4 text-sm text-text hover:border-signal hover:text-signal"
+          >
+            [ 카카오 로그인 ]
+          </a>
+        </div>
       </div>
     </div>
   );

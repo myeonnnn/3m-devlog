@@ -15,21 +15,19 @@ export function SearchBar({ onSearch }: SearchBarProps) {
         e.preventDefault();
         onSearch(value.trim());
       }}
-      className="flex gap-2"
+      className="flex items-center gap-2 border border-line bg-panel px-3 py-2.5 focus-within:border-signal"
     >
+      <span className="shrink-0 text-sm text-signal">you@3mlog:~$</span>
       <input
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="예전에 배운 내용이나 해결한 버그 검색"
-        className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-500 focus:border-emerald-500 focus:outline-none"
+        placeholder="grep 배운 점 / 버그 (Enter로 검색)"
+        className="min-w-0 flex-1 bg-transparent text-sm text-text placeholder:text-dim placeholder:italic focus:outline-none"
       />
-      <button
-        type="submit"
-        className="shrink-0 rounded-lg bg-neutral-800 px-4 py-2 text-sm text-neutral-100 hover:bg-neutral-700"
-      >
-        검색
-      </button>
+      {value.length === 0 && (
+        <span className="h-4 w-2 shrink-0 animate-pulse bg-signal" aria-hidden="true" />
+      )}
     </form>
   );
 }

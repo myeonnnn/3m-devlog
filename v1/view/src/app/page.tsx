@@ -67,29 +67,27 @@ export default function Home() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 py-8">
-      <header className="flex items-center justify-between gap-4">
+    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 py-6 sm:py-8">
+      <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-neutral-100">
-            3분 개발 로그
-          </h1>
-          <p className="text-sm text-neutral-400">
+          <h1 className="text-xl font-bold text-text">3분 개발 로그</h1>
+          <p className="text-sm text-dim">
             {meQuery.data.displayName}님{' '}
             <button
               type="button"
               onClick={() => logout.mutate()}
-              className="underline hover:text-neutral-100"
+              className="text-signal hover:underline"
             >
-              로그아웃
+              logout
             </button>
           </p>
         </div>
         <button
           type="button"
           onClick={openCreateForm}
-          className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-emerald-400"
+          className="flex h-11 items-center border border-signal px-4 text-sm text-signal"
         >
-          작성하기
+          [ 새 로그 ]
         </button>
       </header>
 
@@ -102,8 +100,8 @@ export default function Home() {
       />
 
       {deleteDevLog.isError && (
-        <p className="text-sm text-red-400">
-          삭제에 실패했어요: {deleteDevLog.error.message}
+        <p className="text-sm text-danger">
+          $ error: 삭제에 실패했어요 — {deleteDevLog.error.message}
         </p>
       )}
 

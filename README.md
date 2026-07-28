@@ -30,9 +30,9 @@
 flowchart TD
     A(["새 요구사항 / 요청"]) --> B{"문서화된 요구사항?"}
     B -->|Yes| C["1. 요구사항 문서화<br/>requirements/YYYY-Www/"]
-    B -->|No: 애드혹 요청| G
-
+    B -->|No: 애드혹 요청<br/>1번만 생략| D
     C --> D{"구조/컨텍스트 영향?"}
+
     D -->|Yes| D1["2. domain-model.md 갱신"]
     D -->|No| E
     D1 --> E{"비즈니스 규칙 변경?"}

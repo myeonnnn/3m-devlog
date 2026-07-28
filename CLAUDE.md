@@ -70,6 +70,16 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 3분 개발 로그 서비스. 상세 스택/실행법은 [README.md](./README.md) 참고. v1은 view(Next.js)/server(NestJS) 완전 분리 구조.
 
+## 새 요구사항 처리 절차 (workflow)
+
+새 요구사항이 들어오면 아래 순서를 따른다 (상세 이유: README.md "AI를 활용한 개발 방식"):
+1. `requirements/`에 버전별 문서 추가 (기존 문서 베이스로 변경분만 정리)
+2. 구조(애그리거트/컨텍스트)에 영향 있으면 `docs/domain-model.md` 갱신, 없으면 스킵
+3. 비즈니스 규칙 변경 시 `docs/policies.md`를 현재 상태로 갱신 (변경 이력은 안 남김)
+4. `requirements/tasks.md`에 체크리스트 추가
+5. 구현 + 테스트, 체크리스트 항목 완료 처리
+6. 세션 끝나면 이번에 배운 것을 이 파일(CLAUDE.md)에 반영
+
 **재발 가능성 높은 함정:**
 - Node는 반드시 LTS(v24+) 사용. v18에서는 Next 16 typegen, tailwind oxide 네이티브 바이너리, Prisma 엔진이 다 깨짐.
 - `nvm use default`는 다음 Bash 호출에 안 남음(툴이 명령마다 새 셸 실행) — Node 필요한 커맨드엔 매번 `source $(brew --prefix nvm)/nvm.sh && nvm use default &&`를 같이 붙일 것.

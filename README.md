@@ -1,6 +1,25 @@
-# 3m-devlog v1
+<div align="center">
 
-개발자가 오늘 배운 점과 해결한 버그를 3분 만에 기록하고, 검색/태그로 다시 찾아보는 서비스. (요구사항: [`requirements/3m-log 요구사항_20260723.md`](./requirements/3m-log%20요구사항_20260723.md), 도메인 모델: [`docs/domain-model.md`](./docs/domain-model.md))
+<img src="./docs/images/banner.svg" alt="3m-devlog" width="640" />
+
+개발자가 오늘 배운 점과 해결한 버그를 3분 만에 기록하고, 검색/태그로 다시 찾아보는 서비스.
+
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+
+요구사항: [`requirements/3m-log 요구사항_20260723.md`](./requirements/3m-log%20요구사항_20260723.md) · 도메인 모델: [`docs/domain-model.md`](./docs/domain-model.md)
+
+</div>
+
+## 스크린샷
+
+| 메인 화면 (게스트 모드) | 로그 작성 |
+|---|---|
+| ![메인 화면](./docs/images/main-feed.jpg) | ![로그 작성 모달](./docs/images/write-modal.jpg) |
 
 
 ## AI를 활용한 개발 방식

@@ -2,6 +2,7 @@ import {
   CreateDevLogInput,
   DevLog,
   DevLogFilter,
+  DevLogStats,
   PopularTag,
   UpdateDevLogInput,
 } from './types';
@@ -40,5 +41,9 @@ export const devlogApi = {
 
   popularTags(): Promise<PopularTag[]> {
     return request<PopularTag[]>('/devlogs/tags/popular');
+  },
+
+  stats(): Promise<DevLogStats> {
+    return request<DevLogStats>('/devlogs/stats');
   },
 };

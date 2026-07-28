@@ -93,8 +93,9 @@ npm run dev                   # http://localhost:3000
 | GET | `/auth/google` | 구글 로그인 시작 (리다이렉트) |
 | GET | `/auth/google/callback` | 구글 콜백, JWT를 httpOnly 쿠키로 발급 후 `FRONTEND_URL`로 리다이렉트 |
 | GET | `/auth/kakao` / `/auth/kakao/callback` | 카카오 로그인 (동일 흐름) |
-| GET | `/auth/me` | 현재 로그인 사용자 정보 (인증 필요) |
+| GET | `/auth/me` | 현재 로그인 사용자 정보 (`id`/`displayName`/`email`/`provider`, 인증 필요) |
 | POST | `/auth/logout` | 로그아웃 (쿠키 삭제) |
+| DELETE | `/auth/me` | 회원탈퇴 — 계정 + 해당 계정의 모든 DevLog 영구 삭제 (복구 불가) |
 
 ### DevLog
 
@@ -105,6 +106,7 @@ npm run dev                   # http://localhost:3000
 | POST | `/devlogs` | 생성 |
 | GET | `/devlogs?search=&tag=` | 목록 조회 (키워드 검색 / 태그 필터) |
 | GET | `/devlogs/tags/popular` | 인기 태그 집계 (본인 로그 기준) |
+| GET | `/devlogs/stats` | 마이페이지용 통계 (`totalCount`, `topTags`) |
 | GET | `/devlogs/:id` | 단건 조회 |
 | PATCH | `/devlogs/:id` | 수정 |
 | DELETE | `/devlogs/:id` | 삭제 |
@@ -137,24 +139,25 @@ make test-all     # 유닛 + e2e
 - `prisma/schema.prisma`: `DevLog` – `Tag` – `DevLogTag`(조인 테이블) 다대다 구조. Tag를 별도 애그리거트로 두지 않고 정규화 저장만 하는 이유는 [도메인 모델 문서](./docs/domain-model.md#32-devlog-aggregate-devlog-context--핵심-애그리거트) 참고.
 - `src/prisma/`: `PrismaService`/`PrismaModule` (전역 모듈)
 - `src/devlog/`: 컨트롤러/서비스/DTO
-- `src/users/`: `User` 조회/find-or-create (Identity Context)
-- `src/auth/`: Passport 전략(Google/Kakao/JWT), JWT 발급, 로그인/콜백/me/logout 컨트롤러
+- `src/users/`: `User` 조회/find-or-create, `deleteAccountAndData`(계정+DevLog 영구 삭제, 트랜잭션) (Identity Context)
+- `src/auth/`: Passport 전략(Google/Kakao/JWT), JWT 발급, 로그인/콜백/me/logout/회원탈퇴 컨트롤러
 - `src/common/decorators/owner-id.decorator.ts`: `JwtAuthGuard` 통과 후 `request.user.id`를 꺼내는 파라미터 데코레이터
 
 ### view
 
 프레젠테이션과 비즈니스 로직(데이터 패칭/뮤테이션)을 계층으로 분리했다.
 
-- `src/lib/`: 도메인 타입, 순수 fetch API 클라이언트(`api-client.ts`, `devlog-api.ts`, `auth-api.ts`)
-- `src/hooks/use-devlogs.ts`, `use-auth.ts`: React Query 훅 — 비즈니스 로직 계층
+- `src/lib/`: 도메인 타입, 순수 fetch API 클라이언트(`api-client.ts`, `devlog-api.ts`, `auth-api.ts`), 게스트 로컬 저장소(`guest-storage.ts`)
+- `src/hooks/use-devlogs.ts`, `use-auth.ts`, `use-guest-devlogs.ts`: React Query(또는 로컬 상태) 훅 — 비즈니스 로직 계층
 - `src/components/devlog/`, `src/components/auth/`: 프레젠테이션 전용 컴포넌트 (props/콜백으로만 동작, 데이터 패칭 없음)
-- `src/app/page.tsx`: 로그인 여부에 따라 `LoginScreen` 또는 DevLog 피드를 조립하는 얇은 조합 계층
+- `src/app/page.tsx`: 인증 여부에 따라 API 훅 / 게스트 훅 중 실제 데이터 소스만 분기 (컴포넌트는 공용), 비로그인 시 `GuestBanner` 노출
+- `src/app/mypage/page.tsx`: 마이페이지 — 프로필/통계 조회, 로그아웃/회원탈퇴
 
 ## 알아두어야 할 점 / 다음 단계
 
 - Prisma 7부터 클라이언트가 기본 ESM으로 생성되고 드라이버 어댑터가 필수라, `schema.prisma`의 `generator client`에 `moduleFormat = "cjs"`를 지정하고 `@prisma/adapter-pg`를 명시적으로 연결했다.
 - Passport 전략(Google/Kakao)은 생성자에서 `clientID`가 비어있으면 서버 부팅 자체가 실패하므로, 자격증명 없을 때도 placeholder 값을 채워둔다.
-- Kakao는 실제 로그인 테스트 전(자격증명 미보유). 코드 흐름은 Google과 동일.
+- `JwtStrategy`는 토큰 서명뿐 아니라 매 요청마다 계정이 실제로 존재하는지 DB로 확인한다 (회원탈퇴 후 만료 전 토큰이 재사용되는 것을 방지).
 - 인기 태그 집계 기준(본인 로그 기준으로 재확정, 2026-07-28 요구사항에서 뒤집힘), 검색 대상 범위(전체 필드로 확정) 등은 [도메인 모델 문서 7장](./docs/domain-model.md#7-확인된-사항) 참고.
 
 ## 프로덕션 배포 체크리스트 (server)

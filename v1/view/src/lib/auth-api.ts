@@ -17,4 +17,8 @@ export const authApi = {
   logout(): Promise<void> {
     return request<void>('/auth/logout', { method: 'POST' });
   },
+
+  deleteAccount(): Promise<void> {
+    return request<void>('/auth/me', { method: 'DELETE' });
+  },
 };

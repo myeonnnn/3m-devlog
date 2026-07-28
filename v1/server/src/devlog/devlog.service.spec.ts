@@ -9,6 +9,7 @@ type MockPrisma = {
     findUnique: jest.Mock;
     update: jest.Mock;
     delete: jest.Mock;
+    count: jest.Mock;
   };
   tag: {
     upsert: jest.Mock;
@@ -27,6 +28,7 @@ function createPrismaMock(): MockPrisma {
       findUnique: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn(),
     },
     tag: {
       upsert: jest.fn(),
@@ -228,6 +230,26 @@ describe('DevLogService', () => {
         { tag: 'React', count: 2 },
         { tag: 'Nest', count: 1 },
       ]);
+    });
+  });
+
+  describe('stats', () => {
+    it('총 로그 개수와 인기 태그를 함께 반환한다', async () => {
+      prisma.devLog.count.mockResolvedValue(7);
+      prisma.devLogTag.groupBy.mockResolvedValue([
+        { tagId: 'tag-react', _count: { tagId: 3 } },
+      ]);
+      prisma.tag.findMany.mockResolvedValue([
+        { id: 'tag-react', displayName: 'React', normalized: 'react' },
+      ]);
+
+      const result = await service.stats(ownerId);
+
+      expect(prisma.devLog.count).toHaveBeenCalledWith({ where: { ownerId } });
+      expect(result).toEqual({
+        totalCount: 7,
+        topTags: [{ tag: 'React', count: 3 }],
+      });
     });
   });
 });

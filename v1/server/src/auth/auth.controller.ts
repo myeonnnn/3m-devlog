@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
@@ -54,12 +62,25 @@ export class AuthController {
   async me(@OwnerId() userId: string) {
     const user = await this.userService.findById(userId);
     return (
-      user && { id: user.id, displayName: user.displayName, email: user.email }
+      user && {
+        id: user.id,
+        displayName: user.displayName,
+        email: user.email,
+        provider: user.provider,
+      }
     );
   }
 
   @Post('logout')
   logout(@Res() res: Response) {
+    res.clearCookie(COOKIE_NAME, cookieOptions);
+    res.status(204).send();
+  }
+
+  @Delete('me')
+  @UseGuards(JwtAuthGuard)
+  async deleteAccount(@OwnerId() userId: string, @Res() res: Response) {
+    await this.userService.deleteAccountAndData(userId);
     res.clearCookie(COOKIE_NAME, cookieOptions);
     res.status(204).send();
   }

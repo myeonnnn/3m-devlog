@@ -39,6 +39,12 @@ export class DevLogController {
     return this.devLogService.popularTags(ownerId);
   }
 
+  @Get('stats')
+  @UseGuards(JwtAuthGuard)
+  stats(@OwnerId() ownerId: string) {
+    return this.devLogService.stats(ownerId);
+  }
+
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   findOne(@OwnerId() ownerId: string, @Param('id') id: string) {

@@ -127,6 +127,15 @@ export class DevLogService {
     }));
   }
 
+  async stats(ownerId: string) {
+    const [totalCount, topTags] = await Promise.all([
+      this.prisma.devLog.count({ where: { ownerId } }),
+      this.popularTags(ownerId, 5),
+    ]);
+
+    return { totalCount, topTags };
+  }
+
   private async findOwnedOrThrow(ownerId: string, id: string) {
     const devLog = await this.prisma.devLog.findUnique({
       where: { id },

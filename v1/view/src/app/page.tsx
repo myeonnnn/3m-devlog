@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { DevLog } from '@/lib/types';
 import {
   useCreateDevLog,
@@ -85,6 +86,9 @@ export default function Home() {
           {meQuery.data && (
             <p className="text-sm text-dim">
               {meQuery.data.displayName}님{' '}
+              <Link href="/mypage" className="text-signal hover:underline">
+                mypage
+              </Link>{' '}
               <button
                 type="button"
                 onClick={() => logout.mutate()}

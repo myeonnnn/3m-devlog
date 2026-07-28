@@ -7,6 +7,7 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { AuthProvider } from '../generated/prisma/enums';
 
 interface DevLogResponse {
   id: string;
@@ -40,11 +41,32 @@ describe('DevLog (e2e)', () => {
 
     prisma = moduleFixture.get(PrismaService);
     jwtService = moduleFixture.get(JwtService);
+
+    // JwtStrategy가 계정 존재 여부를 확인하므로, 테스트용 User를 실제로 만들어둔다.
+    await prisma.user.createMany({
+      data: [
+        {
+          id: ownerId,
+          provider: AuthProvider.GOOGLE,
+          providerUserId: ownerId,
+          displayName: 'e2e owner',
+        },
+        {
+          id: otherOwnerId,
+          provider: AuthProvider.GOOGLE,
+          providerUserId: otherOwnerId,
+          displayName: 'e2e other owner',
+        },
+      ],
+    });
   });
 
   afterAll(async () => {
     await prisma.devLog.deleteMany({
       where: { ownerId: { in: [ownerId, otherOwnerId] } },
+    });
+    await prisma.user.deleteMany({
+      where: { id: { in: [ownerId, otherOwnerId] } },
     });
     await app.close();
   });

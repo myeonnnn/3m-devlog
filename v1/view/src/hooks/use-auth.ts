@@ -20,3 +20,14 @@ export function useLogout() {
     },
   });
 }
+
+export function useDeleteAccount() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => authApi.deleteAccount(),
+    onSuccess: () => {
+      queryClient.setQueryData(meKey, null);
+      queryClient.invalidateQueries({ queryKey: ['devlogs'] });
+    },
+  });
+}

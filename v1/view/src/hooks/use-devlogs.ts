@@ -11,6 +11,7 @@ const devlogKeys = {
   list: (filter: DevLogFilter) => [...devlogKeys.all, 'list', filter] as const,
   detail: (id: string) => [...devlogKeys.all, 'detail', id] as const,
   popularTags: () => [...devlogKeys.all, 'popularTags'] as const,
+  stats: () => [...devlogKeys.all, 'stats'] as const,
 };
 
 export function useDevLogsQuery(filter: DevLogFilter, options?: { enabled?: boolean }) {
@@ -47,6 +48,14 @@ export function useUpdateDevLog() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: devlogKeys.all });
     },
+  });
+}
+
+export function useStatsQuery(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: devlogKeys.stats(),
+    queryFn: () => devlogApi.stats(),
+    enabled: options?.enabled ?? true,
   });
 }
 

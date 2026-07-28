@@ -8,6 +8,20 @@ import { OwnerId } from '../common/decorators/owner-id.decorator';
 
 const COOKIE_NAME = 'access_token';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+/**
+ * 프로덕션에서는 HTTPS가 기본이라 secure를 켜고, 프론트/백엔드가 서로 다른
+ * 도메인(cross-site)에 배포될 수도 있으므로 sameSite도 'none'으로 넓혀둔다.
+ * (sameSite: 'none'은 secure: true가 있어야 브라우저가 허용한다.)
+ * 로컬 개발은 http://localhost라 secure 쿠키가 저장되지 않으므로 lax를 쓴다.
+ */
+const cookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? ('none' as const) : ('lax' as const),
+};
+
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -46,7 +60,7 @@ export class AuthController {
 
   @Post('logout')
   logout(@Res() res: Response) {
-    res.clearCookie(COOKIE_NAME);
+    res.clearCookie(COOKIE_NAME, cookieOptions);
     res.status(204).send();
   }
 
@@ -55,8 +69,7 @@ export class AuthController {
     const token = this.authService.issueToken(user.id);
 
     res.cookie(COOKIE_NAME, token, {
-      httpOnly: true,
-      sameSite: 'lax',
+      ...cookieOptions,
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
     res.redirect(process.env.FRONTEND_URL ?? 'http://localhost:3000');

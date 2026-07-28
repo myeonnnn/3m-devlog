@@ -64,6 +64,7 @@
 | `devlog-form-modal.tsx` | 패널 스타일 유지하되 radius/보더를 토큰에 맞춤 |
 | `login-screen.tsx` | 부팅 프롬프트 스타일로 재작성 |
 | `app/page.tsx` | 상단에 터미널 타이틀바 추가 |
+| `logo.tsx` | 터미널 프롬프트(`❯_`) 모티프의 각진 사각 아이콘. `app/icon.svg`(favicon)와 헤더 로고가 동일한 도형을 공유 |
 
 ## 6. 접근성 · 모션
 

@@ -16,6 +16,7 @@ import { TagChips } from '@/components/devlog/tag-chips';
 import { DevLogList } from '@/components/devlog/devlog-list';
 import { DevLogFormModal } from '@/components/devlog/devlog-form-modal';
 import { GuestBanner } from '@/components/auth/guest-banner';
+import { Logo } from '@/components/logo';
 import { useMeQuery, useLogout } from '@/hooks/use-auth';
 
 export default function Home() {
@@ -82,7 +83,10 @@ export default function Home() {
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 py-6 sm:py-8">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-text">3m-devlog</h1>
+          <div className="flex items-center gap-2">
+            <Logo className="h-6 w-6" />
+            <h1 className="text-xl font-bold text-text">3m-devlog</h1>
+          </div>
           {meQuery.data && (
             <p className="text-sm text-dim">
               {meQuery.data.displayName}님{' '}

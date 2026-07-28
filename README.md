@@ -22,7 +22,7 @@
 | ![메인 화면](./docs/images/main-feed.jpg) | ![로그 작성 모달](./docs/images/write-modal.jpg) |
 
 
-## AI를 활용한 개발 방식
+## AI Workflow
 
 이 프로젝트의 목적은 서비스 자체보다 AI와 함께 문제를 정의하고 개발하는 과정에 있습니다. 서버/인프라는 그 과정에서 자연스럽게 익힌 부분입니다. 새 요구사항이 들어오면 아래 순서로 처리합니다.
 
@@ -32,11 +32,11 @@
 
 ### 2. 설계 영향 확인
 
-구조(애그리거트, 컨텍스트 등)에 영향이 있으면 [도메인 모델](./docs/domain-model.md)을 갱신합니다. 단순 정책 변경이면 건너뜁니다.
+구조(애그리거트, 컨텍스트 등)에 영향이 있으면 [`docs/domain-model.md`](./docs/domain-model.md)를 갱신합니다. 단순 정책 변경이면 건너뜁니다.
 
 ### 3. 정책 반영
 
-비즈니스 규칙이 새로 생기거나 바뀌면 [정책 문서](./docs/policies.md)를 현재 상태로 갱신합니다. 변경 이력은 남기지 않습니다 — 요구사항 문서와 tasks/가 그 역할을 합니다.
+비즈니스 규칙이 새로 생기거나 바뀌면 [`docs/policies.md`](./docs/policies.md)를 현재 상태로 갱신합니다. 변경 이력은 남기지 않습니다 — 요구사항 문서와 [`tasks/`](./tasks)가 그 역할을 합니다.
 
 ### 4. 작업 분해
 
@@ -141,12 +141,8 @@ npm run dev                   # http://localhost:3000
 
 ```bash
 cd server
-npm test          # 유닛 테스트 (DevLogService, Prisma는 mock)
-npm run test:e2e  # e2e 테스트 (실제 Postgres에 접속, docker compose up 필요)
-
-# 또는 Makefile로:
-make test         # 유닛 테스트
-make test-e2e     # Postgres 기동 후 e2e 테스트
+make test         # 유닛 테스트 (DevLogService, Prisma는 mock)
+make test-e2e     # e2e 테스트 (Postgres 기동 후 실행)
 make test-all     # 유닛 + e2e
 ```
 

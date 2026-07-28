@@ -103,12 +103,14 @@ classDiagram
     DevLog *-- LearnedNote : 필수 1
     DevLog *-- TroubleshootingNote : 선택 0..1
     DevLog *-- TomorrowTask : 선택 0..1
-    DevLog *-- "0..*" Tag
+    DevLog *-- "0..5" Tag
 ```
 
 - **경계 안(애그리거트 내부에서 강제되는 불변식)**
   - `LearnedNote`는 공백일 수 없음 (필수 입력).
   - `Tags`는 `normalized`(소문자 trim) 기준 중복 없음 — `React`와 `react`는 저장 시점에 하나로 합쳐짐, `displayName`은 최초 입력값 유지.
+  - `Tags`는 최대 5개까지 (2026-07-28-2 요구사항으로 확정).
+  - `logDate`는 오늘부터 과거 최대 1개월 이내만 허용, 미래 날짜 불가 (2026-07-28-2 요구사항으로 확정).
   - 수정/삭제는 `ownerId == 요청자 UserId`인 경우에만 허용 (권한 검사는 애그리거트가 요청자 컨텍스트를 알고 커맨드를 거부하는 형태로 표현 — 상세는 애플리케이션 레이어에서 구체화).
 - **Tag를 별도 애그리거트로 분리하지 않은 이유**: Tag 자체는 독립적 생명주기나 식별자가 필요 없음. "인기 태그"는 Tag의 상태가 아니라 DevLog 컬렉션에 대한 집계 쿼리 결과이므로, Tag를 애그리거트로 승격시키면 DevLog 저장 시마다 별도 트랜잭션/동시성 문제만 늘어남 (과설계 방지).
 
@@ -118,8 +120,9 @@ classDiagram
 classDiagram
     class UserRepository {
         <<interface>>
-        +findByProviderIdentity(provider, providerUserId) User
-        +save(User)
+        +findOrCreateByProvider(provider, providerUserId, profile) User
+        +findById(UserId) User
+        +deleteWithOwnedData(UserId)
     }
     class DevLogRepository {
         <<interface>>
@@ -131,6 +134,7 @@ classDiagram
 ```
 
 - 애그리거트당 리포지토리 1개 원칙 준수. `DevLog` 조회는 항상 `ownerId` 스코프로 제한 (요구사항 "내 기록만 관리").
+- `deleteWithOwnedData`: 회원탈퇴 시 User와 그 User가 소유한 모든 DevLog를 함께 삭제 (2026-07-28 요구사항). User → DevLog는 FK로 강결합되어 있지 않으므로(컨텍스트 간 느슨한 결합) DB cascade가 아닌 애플리케이션 레이어의 트랜잭션으로 처리.
 
 ## 5. 도메인 이벤트 (최소 초안)
 

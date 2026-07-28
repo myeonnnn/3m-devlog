@@ -74,7 +74,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 `requirements/`(요구사항 문서)와 `tasks/`(진행 체크리스트)는 별도 폴더로 분리되어 있고, 둘 다 ISO 주차 단위(`YYYY-Www`)로 관리한다 — 구조는 [`requirements/README.md`](./requirements/README.md), [`tasks/README.md`](./tasks/README.md) 참고.
 
-새 요구사항이 들어오면 아래 순서를 따른다 (상세 이유: README.md "AI를 활용한 개발 방식"):
+새 요구사항이 들어오면 아래 순서를 따른다 (상세 이유: README.md "AI Workflow"):
 1. 현재 ISO 주차 폴더(`requirements/YYYY-Www/`, 없으면 새로 생성)에 버전별 문서 추가 (기존 문서 베이스로 변경분만 정리)
 2. 구조(애그리거트/컨텍스트)에 영향 있으면 `docs/domain-model.md` 갱신, 없으면 스킵
 3. 비즈니스 규칙 변경 시 `docs/policies.md`를 현재 상태로 갱신 (변경 이력은 안 남김)

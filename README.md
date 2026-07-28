@@ -98,13 +98,13 @@ npm run dev                   # http://localhost:3000
 
 ### DevLog
 
-베이스 경로: `/devlogs`. `/devlogs/tags/popular`를 제외한 모든 요청은 로그인(쿠키) 필요, 없으면 401.
+베이스 경로: `/devlogs`. 모든 요청은 로그인(쿠키) 필요, 없으면 401.
 
 | Method | Path | 설명 |
 |---|---|---|
 | POST | `/devlogs` | 생성 |
 | GET | `/devlogs?search=&tag=` | 목록 조회 (키워드 검색 / 태그 필터) |
-| GET | `/devlogs/tags/popular` | 인기 태그 집계 (전체 사용자 기준, 인증 불필요) |
+| GET | `/devlogs/tags/popular` | 인기 태그 집계 (본인 로그 기준) |
 | GET | `/devlogs/:id` | 단건 조회 |
 | PATCH | `/devlogs/:id` | 수정 |
 | DELETE | `/devlogs/:id` | 삭제 |
@@ -155,7 +155,7 @@ make test-all     # 유닛 + e2e
 - Prisma 7부터 클라이언트가 기본 ESM으로 생성되고 드라이버 어댑터가 필수라, `schema.prisma`의 `generator client`에 `moduleFormat = "cjs"`를 지정하고 `@prisma/adapter-pg`를 명시적으로 연결했다.
 - Passport 전략(Google/Kakao)은 생성자에서 `clientID`가 비어있으면 서버 부팅 자체가 실패하므로, 자격증명 없을 때도 placeholder 값을 채워둔다.
 - Kakao는 실제 로그인 테스트 전(자격증명 미보유). 코드 흐름은 Google과 동일.
-- 인기 태그 집계 기준(전체 사용자로 확정), 검색 대상 범위(전체 필드로 확정) 등은 [도메인 모델 문서 7장](./docs/domain-model.md#7-확인된-사항) 참고.
+- 인기 태그 집계 기준(본인 로그 기준으로 재확정, 2026-07-28 요구사항에서 뒤집힘), 검색 대상 범위(전체 필드로 확정) 등은 [도메인 모델 문서 7장](./docs/domain-model.md#7-확인된-사항) 참고.
 
 ## 프로덕션 배포 체크리스트 (server)
 

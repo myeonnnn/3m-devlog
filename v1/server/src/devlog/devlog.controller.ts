@@ -34,8 +34,9 @@ export class DevLogController {
   }
 
   @Get('tags/popular')
-  popularTags() {
-    return this.devLogService.popularTags();
+  @UseGuards(JwtAuthGuard)
+  popularTags(@OwnerId() ownerId: string) {
+    return this.devLogService.popularTags(ownerId);
   }
 
   @Get(':id')

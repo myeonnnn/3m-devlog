@@ -1,4 +1,5 @@
 import {
+  ArrayMaxSize,
   IsArray,
   IsDateString,
   IsOptional,
@@ -25,6 +26,7 @@ export class CreateDevLogDto {
 
   @IsOptional()
   @IsArray()
+  @ArrayMaxSize(5)
   @IsString({ each: true })
   @MaxLength(50, { each: true })
   tags?: string[];

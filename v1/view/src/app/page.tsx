@@ -82,7 +82,7 @@ export default function Home() {
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 py-6 sm:py-8">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-text">3분 개발 로그</h1>
+          <h1 className="text-xl font-bold text-text">3m-devlog</h1>
           {meQuery.data && (
             <p className="text-sm text-dim">
               {meQuery.data.displayName}님{' '}

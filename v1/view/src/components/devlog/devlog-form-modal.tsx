@@ -15,6 +15,8 @@ function toDateInputValue(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
+const MAX_TAGS = 5;
+
 const maxLogDate = toDateInputValue(new Date());
 const minLogDate = (() => {
   const oneMonthAgo = new Date();
@@ -46,10 +48,18 @@ export function DevLogFormModal({
 
   function addTag() {
     const trimmed = tagInput.trim().replace(/^#/, '');
-    if (trimmed && !tags.includes(trimmed)) {
-      setTags([...tags, trimmed]);
+    if (!trimmed) return;
+    if (tags.includes(trimmed)) {
+      setTagInput('');
+      return;
     }
+    if (tags.length >= MAX_TAGS) {
+      setValidationError(`태그는 최대 ${MAX_TAGS}개까지만 붙일 수 있어요.`);
+      return;
+    }
+    setTags([...tags, trimmed]);
     setTagInput('');
+    setValidationError(null);
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -123,7 +133,9 @@ export function DevLogFormModal({
           </div>
 
           <div>
-            <label className="text-sm text-signal">tags&gt;</label>
+            <label className="text-sm text-signal">
+              tags&gt; <span className="text-dim">({tags.length}/{MAX_TAGS})</span>
+            </label>
             <input
               type="text"
               value={tagInput}
@@ -134,8 +146,13 @@ export function DevLogFormModal({
                   addTag();
                 }
               }}
-              placeholder="# 붙이거나 입력 후 Enter"
-              className={fieldClass}
+              disabled={tags.length >= MAX_TAGS}
+              placeholder={
+                tags.length >= MAX_TAGS
+                  ? '태그 최대 개수에 도달했어요'
+                  : '# 붙이거나 입력 후 Enter'
+              }
+              className={`${fieldClass} disabled:opacity-50`}
             />
             {tags.length > 0 && (
               <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-dim">
@@ -144,7 +161,10 @@ export function DevLogFormModal({
                     #{tag}
                     <button
                       type="button"
-                      onClick={() => setTags(tags.filter((t) => t !== tag))}
+                      onClick={() => {
+                        setTags(tags.filter((t) => t !== tag));
+                        setValidationError(null);
+                      }}
                       aria-label={`${tag} 태그 삭제`}
                       className="flex h-6 w-6 items-center justify-center text-dim hover:text-danger"
                     >

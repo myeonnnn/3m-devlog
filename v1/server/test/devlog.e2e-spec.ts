@@ -84,6 +84,33 @@ describe('DevLog (e2e)', () => {
       .expect(400);
   });
 
+  it('태그가 6개를 넘으면 400을 반환한다', async () => {
+    await request(app.getHttpServer())
+      .post('/devlogs')
+      .set('Cookie', cookieFor(ownerId))
+      .send({
+        logDate: today,
+        learnedNote: '태그 제한 테스트',
+        tags: ['a', 'b', 'c', 'd', 'e', 'f'],
+      })
+      .expect(400);
+  });
+
+  it('태그가 5개면 정상 생성된다', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/devlogs')
+      .set('Cookie', cookieFor(ownerId))
+      .send({
+        logDate: today,
+        learnedNote: '태그 제한 경계값 테스트',
+        tags: ['a', 'b', 'c', 'd', 'e'],
+      })
+      .expect(201);
+
+    const created = res.body as DevLogResponse;
+    expect(created.tags).toHaveLength(5);
+  });
+
   it('미래 날짜로 생성하면 400을 반환한다', async () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);

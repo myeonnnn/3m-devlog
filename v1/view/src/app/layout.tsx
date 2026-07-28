@@ -10,8 +10,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "3분 개발 로그",
-  description: "오늘 배운 점과 해결한 버그를 3분 만에 기록하는 개발 로그",
+  title: "3m-devlog",
+  description: "오늘 배운 점과 해결한 버그를 3분 만에 기록하는 개발 로그, 3m-devlog",
 };
 
 export default function RootLayout({

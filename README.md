@@ -11,7 +11,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 
-요구사항: [`requirements/3m-log 요구사항_20260723.md`](./requirements/3m-log%20요구사항_20260723.md) · 도메인 모델: [`docs/domain-model.md`](./docs/domain-model.md)
+요구사항: [`requirements/2026-W30/3m-log 요구사항_20260723.md`](./requirements/2026-W30/3m-log%20요구사항_20260723.md) · 도메인 모델: [`docs/domain-model.md`](./docs/domain-model.md)
 
 </div>
 
@@ -40,7 +40,7 @@
 
 ### 4. 작업 분해
 
-[`tasks.md`](./requirements/tasks.md)로 요구사항별 체크리스트를 관리하며 진행 상황을 추적합니다.
+[`requirements/`](./requirements) 안 ISO 주차 폴더별 `tasks.md`로 요구사항별 체크리스트를 관리하며 진행 상황을 추적합니다 (자세한 폴더 구조는 [`requirements/README.md`](./requirements/README.md) 참고).
 
 ### 5. 구현
 
@@ -72,7 +72,7 @@ view/     # Next.js 프론트엔드
 
 ## 현재 구현 범위
 
-요구사항 대비 진행 상황 체크리스트: [`requirements/tasks.md`](./requirements/tasks.md)
+요구사항 대비 진행 상황 체크리스트: [`requirements/`](./requirements) (ISO 주차 폴더별 `tasks.md`)
 
 - **DevLog** 도메인 구현 (생성/조회/수정/삭제, 태그 필터, 키워드 검색, 인기 태그 집계)
 - **소셜 로그인** (Google 구현·테스트 완료, Kakao는 코드까지만 구현 — 실제 앱 자격증명 필요). JWT를 httpOnly 쿠키로 발급해 로그인 상태 유지.

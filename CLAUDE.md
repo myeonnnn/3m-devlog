@@ -72,15 +72,17 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ## 새 요구사항 처리 절차 (workflow)
 
+`requirements/`는 ISO 주차 폴더(`YYYY-Www/`, 예: `2026-W31/`) 단위로 관리한다 — 구조는 [`requirements/README.md`](./requirements/README.md) 참고.
+
 새 요구사항이 들어오면 아래 순서를 따른다 (상세 이유: README.md "AI를 활용한 개발 방식"):
-1. `requirements/`에 버전별 문서 추가 (기존 문서 베이스로 변경분만 정리)
+1. 현재 ISO 주차 폴더(`requirements/YYYY-Www/`, 없으면 새로 생성)에 버전별 문서 추가 (기존 문서 베이스로 변경분만 정리)
 2. 구조(애그리거트/컨텍스트)에 영향 있으면 `docs/domain-model.md` 갱신, 없으면 스킵
 3. 비즈니스 규칙 변경 시 `docs/policies.md`를 현재 상태로 갱신 (변경 이력은 안 남김)
-4. `requirements/tasks.md`에 체크리스트 추가
+4. 같은 주차 폴더의 `tasks.md`에 체크리스트 추가
 5. 구현 + 테스트, 체크리스트 항목 완료 처리
 6. 세션 끝나면 이번에 배운 것을 이 파일(CLAUDE.md)에 반영
 
-**예외 — 문서화 안 된 애드혹 요청** (인프라/리팩터링/스타일링 등 채팅으로 바로 지시받은, 별도 요구사항 문서가 없는 변경): 1번(요구사항 문서화)은 생략하고, `requirements/tasks.md`에 "요구사항 문서 없음" 섹션으로 바로 기록한다. 2·3번은 구조/정책에 실제로 영향이 있을 때만 평소대로 수행.
+**예외 — 문서화 안 된 애드혹 요청** (인프라/리팩터링/스타일링 등 채팅으로 바로 지시받은, 별도 요구사항 문서가 없는 변경): 1번(요구사항 문서화)은 생략하고, 현재 ISO 주차 폴더의 `tasks.md`에 "요구사항 문서 없음" 섹션으로 바로 기록한다. 2·3번은 구조/정책에 실제로 영향이 있을 때만 평소대로 수행.
 
 **재발 가능성 높은 함정:**
 - Node는 반드시 LTS(v24+) 사용. v18에서는 Next 16 typegen, tailwind oxide 네이티브 바이너리, Prisma 엔진이 다 깨짐.

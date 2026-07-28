@@ -2,7 +2,6 @@
 
 <img src="./docs/images/banner.svg" alt="3m-devlog" width="640" />
 
-
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -20,14 +19,13 @@
 |---|---|
 | ![메인 화면](./docs/images/main-feed.jpg) | ![로그 작성 모달](./docs/images/write-modal.jpg) |
 
-
 ## Goal
-이 프로젝트의 목적은 서비스 자체보다 AI와 함께 문제를 정의하고 개발하는 과정에 있습니다. 
+
+이 프로젝트의 목적은 서비스 자체보다 AI와 함께 문제를 정의하고 개발하는 과정에 있습니다.
 
 ## AI Workflow
 
- 새 요구사항이 들어오면 아래 순서로 처리합니다.
-
+새 요구사항이 들어오면 아래 순서로 처리합니다.
 
 ```mermaid
 flowchart LR

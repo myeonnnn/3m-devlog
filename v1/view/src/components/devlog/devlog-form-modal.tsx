@@ -15,6 +15,13 @@ function toDateInputValue(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
+const maxLogDate = toDateInputValue(new Date());
+const minLogDate = (() => {
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+  return toDateInputValue(oneMonthAgo);
+})();
+
 const fieldClass =
   'mt-1 w-full border border-line bg-ink px-3 py-2.5 text-sm text-text placeholder:text-dim placeholder:italic focus:border-signal focus:outline-none';
 
@@ -51,6 +58,10 @@ export function DevLogFormModal({
       setValidationError('오늘 배운 점은 필수 입력이에요.');
       return;
     }
+    if (logDate < minLogDate || logDate > maxLogDate) {
+      setValidationError('날짜는 오늘부터 과거 최대 1개월 이내여야 해요.');
+      return;
+    }
     setValidationError(null);
     onSubmit({
       logDate,
@@ -75,6 +86,8 @@ export function DevLogFormModal({
               type="date"
               value={logDate}
               onChange={(e) => setLogDate(e.target.value)}
+              min={minLogDate}
+              max={maxLogDate}
               className={fieldClass}
             />
           </div>

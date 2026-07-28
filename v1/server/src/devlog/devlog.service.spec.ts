@@ -1,4 +1,8 @@
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { DevLogService } from './devlog.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -46,6 +50,7 @@ describe('DevLogService', () => {
 
   const ownerId = 'owner-1';
   const devLogId = 'devlog-1';
+  const today = new Date().toISOString().slice(0, 10);
 
   beforeEach(() => {
     prisma = createPrismaMock();
@@ -77,7 +82,7 @@ describe('DevLogService', () => {
       });
 
       await service.create(ownerId, {
-        logDate: '2026-07-24',
+        logDate: today,
         learnedNote: '오늘 배운 것',
         tags: ['React', 'react', '  #Nest  '],
       });
@@ -101,12 +106,38 @@ describe('DevLogService', () => {
       });
 
       const result = await service.create(ownerId, {
-        logDate: '2026-07-24',
+        logDate: today,
         learnedNote: '오늘 배운 것',
       });
 
       expect(prisma.tag.upsert).not.toHaveBeenCalled();
       expect(result.tags).toEqual([]);
+    });
+
+    it('미래 날짜로는 생성할 수 없다', async () => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      await expect(
+        service.create(ownerId, {
+          logDate: tomorrow.toISOString().slice(0, 10),
+          learnedNote: '오늘 배운 것',
+        }),
+      ).rejects.toThrow(BadRequestException);
+      expect(prisma.devLog.create).not.toHaveBeenCalled();
+    });
+
+    it('과거 1개월을 넘는 날짜로는 생성할 수 없다', async () => {
+      const twoMonthsAgo = new Date();
+      twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+
+      await expect(
+        service.create(ownerId, {
+          logDate: twoMonthsAgo.toISOString().slice(0, 10),
+          learnedNote: '오늘 배운 것',
+        }),
+      ).rejects.toThrow(BadRequestException);
+      expect(prisma.devLog.create).not.toHaveBeenCalled();
     });
   });
 
@@ -210,6 +241,23 @@ describe('DevLogService', () => {
         data: { tags?: unknown };
       };
       expect(callArgs.data.tags).toBeUndefined();
+    });
+
+    it('logDate를 범위 밖 날짜로 수정할 수 없다', async () => {
+      prisma.devLog.findUnique.mockResolvedValue({
+        id: devLogId,
+        ownerId,
+        tags: [],
+      });
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      await expect(
+        service.update(ownerId, devLogId, {
+          logDate: tomorrow.toISOString().slice(0, 10),
+        }),
+      ).rejects.toThrow(BadRequestException);
+      expect(prisma.devLog.update).not.toHaveBeenCalled();
     });
   });
 

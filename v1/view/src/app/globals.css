@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+:root {
+  /* 이 앱은 항상 다크 테마라, 브라우저 네이티브 폼 컨트롤(날짜 피커 아이콘/팝업 등)도
+     다크로 렌더링되게 한다 — 안 그러면 캘린더 아이콘이 어두운 배경에 묻혀 안 보인다. */
+  color-scheme: dark;
+}
+
 @theme inline {
   --color-ink: #0a0c0e;
   --color-panel: #131619;

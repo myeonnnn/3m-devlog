@@ -22,6 +22,7 @@ describe('DevLog (e2e)', () => {
 
   const ownerId = `e2e-owner-${Date.now()}`;
   const otherOwnerId = `e2e-owner-other-${Date.now()}`;
+  const today = new Date().toISOString().slice(0, 10);
 
   function cookieFor(userId: string) {
     return `access_token=${jwtService.sign({ sub: userId })}`;
@@ -79,7 +80,35 @@ describe('DevLog (e2e)', () => {
     await request(app.getHttpServer())
       .post('/devlogs')
       .set('Cookie', cookieFor(ownerId))
-      .send({ logDate: '2026-07-27' })
+      .send({ logDate: today })
+      .expect(400);
+  });
+
+  it('미래 날짜로 생성하면 400을 반환한다', async () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    await request(app.getHttpServer())
+      .post('/devlogs')
+      .set('Cookie', cookieFor(ownerId))
+      .send({
+        logDate: tomorrow.toISOString().slice(0, 10),
+        learnedNote: '미래 로그',
+      })
+      .expect(400);
+  });
+
+  it('과거 1개월을 넘는 날짜로 생성하면 400을 반환한다', async () => {
+    const twoMonthsAgo = new Date();
+    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+
+    await request(app.getHttpServer())
+      .post('/devlogs')
+      .set('Cookie', cookieFor(ownerId))
+      .send({
+        logDate: twoMonthsAgo.toISOString().slice(0, 10),
+        learnedNote: '너무 오래된 로그',
+      })
       .expect(400);
   });
 
@@ -88,7 +117,7 @@ describe('DevLog (e2e)', () => {
       .post('/devlogs')
       .set('Cookie', cookieFor(ownerId))
       .send({
-        logDate: '2026-07-27',
+        logDate: today,
         learnedNote: 'e2e 테스트로 배운 것',
         troubleshootingNote: 'CORS 이슈 해결',
         tags: ['React', 'react', '#Nest'],

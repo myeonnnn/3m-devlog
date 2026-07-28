@@ -27,6 +27,7 @@ describe('Auth / MyPage (e2e)', () => {
   let jwtService: JwtService;
 
   const userId = `e2e-auth-user-${Date.now()}`;
+  const today = new Date().toISOString().slice(0, 10);
 
   function cookieFor(id: string) {
     return `access_token=${jwtService.sign({ sub: id })}`;
@@ -84,7 +85,7 @@ describe('Auth / MyPage (e2e)', () => {
       .post('/devlogs')
       .set('Cookie', cookieFor(userId))
       .send({
-        logDate: '2026-07-28',
+        logDate: today,
         learnedNote: '통계 테스트',
         tags: ['stats-e2e'],
       })

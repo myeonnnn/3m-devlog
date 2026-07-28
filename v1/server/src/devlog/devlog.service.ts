@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -13,6 +14,26 @@ function normalizeTag(raw: string) {
   return { displayName, normalized: displayName.toLowerCase() };
 }
 
+function toDateOnly(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+/** 정책: 로그 날짜는 오늘부터 과거 최대 1개월까지만 허용, 미래 날짜 불가. */
+function assertLogDateInRange(logDate: string) {
+  const today = new Date();
+  const oneMonthAgo = new Date(today);
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+  const max = toDateOnly(today);
+  const min = toDateOnly(oneMonthAgo);
+
+  if (logDate < min || logDate > max) {
+    throw new BadRequestException(
+      '로그 날짜는 오늘부터 과거 최대 1개월 이내여야 해요.',
+    );
+  }
+}
+
 const devLogInclude = {
   tags: { include: { tag: true } },
 } as const;
@@ -22,6 +43,7 @@ export class DevLogService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(ownerId: string, dto: CreateDevLogDto) {
+    assertLogDateInRange(dto.logDate);
     const tagIds = await this.upsertTags(dto.tags ?? []);
 
     const devLog = await this.prisma.devLog.create({
@@ -75,6 +97,9 @@ export class DevLogService {
 
   async update(ownerId: string, id: string, dto: UpdateDevLogDto) {
     await this.findOwnedOrThrow(ownerId, id);
+    if (dto.logDate) {
+      assertLogDateInRange(dto.logDate);
+    }
 
     const tagIds = dto.tags ? await this.upsertTags(dto.tags) : undefined;
 

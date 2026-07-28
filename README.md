@@ -47,9 +47,8 @@
 ## 폴더 구조
 
 ```
-v1/
-  server/   # NestJS API 서버
-  view/     # Next.js 프론트엔드
+server/   # NestJS API 서버
+view/     # Next.js 프론트엔드
 ```
 
 ## 현재 구현 범위
@@ -64,7 +63,7 @@ v1/
 ### 1. server
 
 ```bash
-cd v1/server
+cd server
 npm install
 docker compose up -d          # 로컬 Postgres 기동
 npx prisma migrate dev        # 최초 1회 (스키마 적용)
@@ -81,7 +80,7 @@ npm run start:dev             # http://localhost:3001 (PORT로 변경 가능)
 ### 2. view
 
 ```bash
-cd v1/view
+cd view
 npm install
 npm run dev                   # http://localhost:3000
 ```
@@ -122,7 +121,7 @@ npm run dev                   # http://localhost:3000
 ## 테스트 (server)
 
 ```bash
-cd v1/server
+cd server
 npm test          # 유닛 테스트 (DevLogService, Prisma는 mock)
 npm run test:e2e  # e2e 테스트 (실제 Postgres에 접속, docker compose up 필요)
 

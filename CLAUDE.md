@@ -68,7 +68,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ## 3m-devlog 프로젝트 노트
 
-3분 개발 로그 서비스. 상세 스택/실행법은 [README.md](./README.md) 참고. v1은 view(Next.js)/server(NestJS) 완전 분리 구조.
+3분 개발 로그 서비스. 상세 스택/실행법은 [README.md](./README.md) 참고. view(Next.js)/server(NestJS) 완전 분리 구조 (저장소 루트 바로 아래 `server/`, `view/`; 브랜치명 `v1`은 폴더 구조와 무관).
 
 ## 새 요구사항 처리 절차 (workflow)
 
@@ -90,4 +90,4 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - `@types/passport-kakao`의 `profile.id` 타입은 `string`이지만 실제 런타임 값은 number — Prisma에 넘기기 전 `String(profile.id)` 변환 필요.
 - e2e 테스트 앱(`createNestApplication()`)은 `main.ts`의 `app.use(cookieParser())` 등을 자동 상속하지 않음 — 쿠키 인증 테스트하려면 테스트 파일에서 직접 다시 붙여야 함.
 - 이 레포는 여러 워크트리 세션이 동시에 `v1`에 푸시할 수 있음 — push 전 `git fetch`로 원격이 앞서 있는지 확인, rejected면 `git pull origin v1 --no-rebase` 후 재푸시.
-- `v1/server` 테스트: `make test`(유닛) / `make test-e2e`(Postgres 기동 후 e2e) / `make test-all`.
+- `server` 테스트: `make test`(유닛) / `make test-e2e`(Postgres 기동 후 e2e) / `make test-all`.

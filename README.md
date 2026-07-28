@@ -2,7 +2,6 @@
 
 <img src="./docs/images/banner.svg" alt="3m-devlog" width="640" />
 
-개발자가 오늘 배운 점과 해결한 버그를 3분 만에 기록하고, 검색/태그로 다시 찾아보는 서비스.
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/)
@@ -22,9 +21,12 @@
 | ![메인 화면](./docs/images/main-feed.jpg) | ![로그 작성 모달](./docs/images/write-modal.jpg) |
 
 
+## Goal
+이 프로젝트의 목적은 서비스 자체보다 AI와 함께 문제를 정의하고 개발하는 과정에 있습니다. 
+
 ## AI Workflow
 
-이 프로젝트의 목적은 서비스 자체보다 AI와 함께 문제를 정의하고 개발하는 과정에 있습니다. 서버/인프라는 그 과정에서 자연스럽게 익힌 부분입니다. 새 요구사항이 들어오면 아래 순서로 처리합니다.
+ 새 요구사항이 들어오면 아래 순서로 처리합니다.
 
 
 ```mermaid
@@ -168,7 +170,7 @@ make test-all     # 유닛 + e2e
 - `src/prisma/`: `PrismaService`/`PrismaModule` (전역 모듈)
 - `src/devlog/`: 컨트롤러/서비스/DTO
 - `src/users/`: `User` 조회/find-or-create, `deleteAccountAndData`(계정+DevLog 영구 삭제, 트랜잭션) (Identity Context)
-- `src/auth/`: Passport 전략(Google/Kakao/JWT), JWT 발급, 로그인/콜백/me/logout/회원탈퇴 컨트롤러
+- `src/auth/`: Passport 전략(Google/Kakao/JWT), JWT 발급, 로그인/콜백/me/logout/회원탈퇴 컨트롤러. `JwtStrategy`는 토큰 서명뿐 아니라 매 요청마다 계정이 실제로 존재하는지 DB로 확인한다 (회원탈퇴 후 만료 전 토큰이 재사용되는 것을 방지).
 - `src/common/decorators/owner-id.decorator.ts`: `JwtAuthGuard` 통과 후 `request.user.id`를 꺼내는 파라미터 데코레이터
 
 ### view
@@ -181,18 +183,4 @@ make test-all     # 유닛 + e2e
 - `src/app/page.tsx`: 인증 여부에 따라 API 훅 / 게스트 훅 중 실제 데이터 소스만 분기 (컴포넌트는 공용), 비로그인 시 `GuestBanner` 노출
 - `src/app/mypage/page.tsx`: 마이페이지 — 프로필/통계 조회, 로그아웃/회원탈퇴
 
-## 알아두어야 할 점 / 다음 단계
-
-- Prisma 7부터 클라이언트가 기본 ESM으로 생성되고 드라이버 어댑터가 필수라, `schema.prisma`의 `generator client`에 `moduleFormat = "cjs"`를 지정하고 `@prisma/adapter-pg`를 명시적으로 연결했다.
-- Passport 전략(Google/Kakao)은 생성자에서 `clientID`가 비어있으면 서버 부팅 자체가 실패하므로, 자격증명 없을 때도 placeholder 값을 채워둔다.
-- `JwtStrategy`는 토큰 서명뿐 아니라 매 요청마다 계정이 실제로 존재하는지 DB로 확인한다 (회원탈퇴 후 만료 전 토큰이 재사용되는 것을 방지).
-- 인기 태그 집계 기준(본인 로그 기준으로 재확정, 2026-07-28 요구사항에서 뒤집힘), 검색 대상 범위(전체 필드로 확정) 등은 [도메인 모델 문서 7장](./docs/domain-model.md#7-확인된-사항) 참고.
-
-## 프로덕션 배포 체크리스트 (server)
-
-- `NODE_ENV=production`으로 기동하면 `JWT_SECRET`/`GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`KAKAO_CLIENT_ID`가 비어있거나 `.env`의 개발용 placeholder 값 그대로면 부팅 자체를 막는다 (`src/main.ts`의 `assertProductionEnv`). 실제 값으로 교체 필요.
-- 인증 쿠키는 `NODE_ENV=production`일 때 자동으로 `secure: true` + `sameSite: 'none'`으로 전환된다 (`src/auth/auth.controller.ts`). HTTPS 배포 전제.
-- Google/Kakao 콘솔에 로컬(`localhost`) 리디렉션 URI에 더해 프로덕션 URI도 추가 등록해야 한다 (같은 앱에 여러 개 등록 가능).
-- Google OAuth consent screen이 "Testing" 상태면 등록된 테스트 계정만 로그인 가능 — 일반 사용자에게 열려면 게시/검증 절차 필요.
-- Kakao 앱이 "개발 중" 상태면 팀원 계정만 로그인 가능 — 일반 사용자에게 열려면 카카오 심사 필요.
-- `npm run start:prod`는 `NODE_ENV=production node dist/src/main`을 실행한다 (기본 Nest 템플릿의 `node dist/main`은 이 프로젝트의 빌드 출력 경로와 안 맞아 즉시 깨짐 — `nest build`가 `dist/generated`, `dist/src` 구조로 출력하기 때문).
+배포 관련 내용은 [`docs/deployment.md`](./docs/deployment.md) 참고.

@@ -75,6 +75,9 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - `nvm use default`는 다음 Bash 호출에 안 남음(툴이 명령마다 새 셸 실행) — Node 필요한 커맨드엔 매번 `source $(brew --prefix nvm)/nvm.sh && nvm use default &&`를 같이 붙일 것.
 - Prisma 7: `schema.prisma`의 `generator client`에 `moduleFormat = "cjs"` 필수, `@prisma/adapter-pg` 드라이버 어댑터 없으면 클라이언트 생성 자체가 실패함.
 - Nest 서버 기본 포트가 3000이라 Next 개발 서버(3000)와 충돌 — server는 `PORT=3001`로 띄움.
-- 소셜 로그인 미구현 상태라 `ownerId`는 `x-user-id` 헤더로 임시 전달 (서버: `OwnerId` 데코레이터, 프론트: `lib/user-id.ts`).
+- 소셜 로그인(Google/Kakao) 구현 완료, JWT를 httpOnly 쿠키로 발급. `ownerId`는 `OwnerId` 데코레이터가 `request.user.id`(JwtAuthGuard가 채움)에서 꺼냄.
+- Passport 전략(Google/Kakao)은 생성자에서 `clientID`가 falsy(`""` 등)면 서버 부팅 자체가 죽음 — 자격증명 없을 때도 placeholder 비-빈 문자열 유지.
+- `@types/passport-kakao`의 `profile.id` 타입은 `string`이지만 실제 런타임 값은 number — Prisma에 넘기기 전 `String(profile.id)` 변환 필요.
+- e2e 테스트 앱(`createNestApplication()`)은 `main.ts`의 `app.use(cookieParser())` 등을 자동 상속하지 않음 — 쿠키 인증 테스트하려면 테스트 파일에서 직접 다시 붙여야 함.
 - 이 레포는 여러 워크트리 세션이 동시에 `v1`에 푸시할 수 있음 — push 전 `git fetch`로 원격이 앞서 있는지 확인, rejected면 `git pull origin v1 --no-rebase` 후 재푸시.
 - `v1/server` 테스트: `make test`(유닛) / `make test-e2e`(Postgres 기동 후 e2e) / `make test-all`.

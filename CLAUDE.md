@@ -80,6 +80,8 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 5. 구현 + 테스트, 체크리스트 항목 완료 처리
 6. 세션 끝나면 이번에 배운 것을 이 파일(CLAUDE.md)에 반영
 
+**예외 — 문서화 안 된 애드혹 요청** (인프라/리팩터링/스타일링 등 채팅으로 바로 지시받은, 별도 요구사항 문서가 없는 변경): 1번(요구사항 문서화)은 생략하고, `requirements/tasks.md`에 "요구사항 문서 없음" 섹션으로 바로 기록한다. 2·3번은 구조/정책에 실제로 영향이 있을 때만 평소대로 수행.
+
 **재발 가능성 높은 함정:**
 - Node는 반드시 LTS(v24+) 사용. v18에서는 Next 16 typegen, tailwind oxide 네이티브 바이너리, Prisma 엔진이 다 깨짐.
 - `nvm use default`는 다음 Bash 호출에 안 남음(툴이 명령마다 새 셸 실행) — Node 필요한 커맨드엔 매번 `source $(brew --prefix nvm)/nvm.sh && nvm use default &&`를 같이 붙일 것.

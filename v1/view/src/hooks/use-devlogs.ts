@@ -13,17 +13,19 @@ const devlogKeys = {
   popularTags: () => [...devlogKeys.all, 'popularTags'] as const,
 };
 
-export function useDevLogsQuery(filter: DevLogFilter) {
+export function useDevLogsQuery(filter: DevLogFilter, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: devlogKeys.list(filter),
     queryFn: () => devlogApi.list(filter),
+    enabled: options?.enabled ?? true,
   });
 }
 
-export function usePopularTagsQuery() {
+export function usePopularTagsQuery(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: devlogKeys.popularTags(),
     queryFn: () => devlogApi.popularTags(),
+    enabled: options?.enabled ?? true,
   });
 }
 

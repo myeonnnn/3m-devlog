@@ -69,3 +69,10 @@
 
 ### 5. 로고 제작
 - [x] 터미널 GUI 컨셉 로고 제작 및 적용 (favicon, 화면 헤더) — 터미널 프롬프트(`❯_`) 모티프의 각진 SVG 아이콘, `logo.tsx`(헤더)와 `app/icon.svg`(favicon)가 동일 도형 공유
+
+## 2026-07-28-3 (요구사항 문서 없음 — 저장소 구조 변경)
+
+### 폴더 구조 평탄화
+- [x] `v1/server`, `v1/view` → 저장소 루트 `server/`, `view/`로 이동 (`git mv`로 히스토리 보존). v1, v2 식으로 버전별 폴더를 늘려나가려던 계획을 접고 코드베이스 하나만 관리하는 것으로 변경
+- [x] README.md / CLAUDE.md / docs/design-system.md / view/CLAUDE.md의 `v1/server`, `v1/view` 경로 참조를 `server/`, `view/`로 수정
+- [x] 이동 후 서버 유닛+e2e 테스트, 프론트 tsc/lint/build 재확인

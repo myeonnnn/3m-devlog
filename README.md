@@ -36,11 +36,11 @@
 
 ### 3. 정책 반영
 
-비즈니스 규칙이 새로 생기거나 바뀌면 [정책 문서](./docs/policies.md)를 현재 상태로 갱신합니다. 변경 이력은 남기지 않습니다 — 요구사항 문서와 tasks.md가 그 역할을 합니다.
+비즈니스 규칙이 새로 생기거나 바뀌면 [정책 문서](./docs/policies.md)를 현재 상태로 갱신합니다. 변경 이력은 남기지 않습니다 — 요구사항 문서와 tasks/가 그 역할을 합니다.
 
 ### 4. 작업 분해
 
-[`requirements/`](./requirements) 안 ISO 주차 폴더별 `tasks.md`로 요구사항별 체크리스트를 관리하며 진행 상황을 추적합니다 (자세한 폴더 구조는 [`requirements/README.md`](./requirements/README.md) 참고).
+[`tasks/`](./tasks) 안 ISO 주차별 파일로 요구사항별 체크리스트를 관리하며 진행 상황을 추적합니다 (자세한 폴더 구조는 [`tasks/README.md`](./tasks/README.md) 참고).
 
 ### 5. 구현
 
@@ -72,7 +72,7 @@ view/     # Next.js 프론트엔드
 
 ## 현재 구현 범위
 
-요구사항 대비 진행 상황 체크리스트: [`requirements/`](./requirements) (ISO 주차 폴더별 `tasks.md`)
+요구사항 대비 진행 상황 체크리스트: [`tasks/`](./tasks) (ISO 주차별 파일)
 
 - **DevLog** 도메인 구현 (생성/조회/수정/삭제, 태그 필터, 키워드 검색, 인기 태그 집계)
 - **소셜 로그인** (Google 구현·테스트 완료, Kakao는 코드까지만 구현 — 실제 앱 자격증명 필요). JWT를 httpOnly 쿠키로 발급해 로그인 상태 유지.

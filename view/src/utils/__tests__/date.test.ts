@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { toDateInputValue } from './date';
+import { toDateInputValue } from '../date';
 
 describe('toDateInputValue', () => {
   it('날짜를 YYYY-MM-DD 형식으로 변환한다', () => {

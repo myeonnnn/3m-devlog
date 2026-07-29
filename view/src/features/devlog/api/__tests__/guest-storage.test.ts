@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { guestStorage } from './guest-storage';
+import { guestStorage } from '../guest-storage';
 
 describe('guestStorage', () => {
   beforeEach(() => {

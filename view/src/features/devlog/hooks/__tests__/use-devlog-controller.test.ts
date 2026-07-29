@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { DevLog } from '../types';
-import { useGuestDevLogController } from './use-devlog-controller';
+import type { DevLog } from '../../types';
+import { useGuestDevLogController } from '../use-devlog-controller';
 
 const fakeDevLog: DevLog = {
   id: 'nonexistent',

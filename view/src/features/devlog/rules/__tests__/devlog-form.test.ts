@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { maxLogDate, minLogDate, normalizeTag, toLogFilename, validateDevLogForm } from './devlog-form';
+import { maxLogDate, minLogDate, normalizeTag, toLogFilename, validateDevLogForm } from '../devlog-form';
 
 describe('validateDevLogForm', () => {
   it('learnedNote가 비어있으면 에러를 반환한다', () => {

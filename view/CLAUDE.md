@@ -34,6 +34,6 @@ src/
 ## 테스트
 Vitest + React Testing Library (`npm test` 1회 실행, `npm run test:watch` watch 모드). 서버는 Jest를 쓰지만 클라이언트는 Next.js/Vite 계열과 궁합이 좋은 Vitest로 별도 채택.
 
-- 테스트 파일은 대상 파일 옆에 콜로케이션 (`*.test.ts(x)`), 별도 `__tests__/` 폴더 안 씀 — feature colocation 원칙과 동일한 이유.
+- 테스트 파일(`*.test.ts(x)`)은 대상 파일이 있는 폴더 안의 `__tests__/` 하위 폴더에 둔다 (예: `hooks/use-devlogs.ts` → `hooks/__tests__/use-devlogs.test.ts`). feature 안을 이미 `api/`·`hooks/`·`rules/`처럼 관심사별로 나눴으니, 테스트도 그 구분을 따라 같은 위치에 모아 구현 파일과 테스트 파일이 섞이지 않게 한다.
 - 우선순위: `rules/`·`utils/`의 순수 함수(가장 싸고 값어치 높음) → 버그가 실제로 살기 쉬운 훅(`use-*.ts`)의 분기/상태 로직 → 컴포넌트는 스냅샷 대신 사용자 행동 기준으로 선택적으로. E2E(Playwright)는 아직 미도입 — 훅 단위로 못 잡는 흐름(OAuth 리다이렉트 등)이 생기면 그때 검토.
 - localStorage를 쓰는 게스트 관련 테스트는 jsdom이 기본 제공하는 `Storage`를 그대로 쓰고, 실패 경로는 `vi.spyOn(Storage.prototype, 'setItem')`으로 강제 발생시킨다 — 모듈 자체를 mock하지 않고 실제에 가깝게 검증.

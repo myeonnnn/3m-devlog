@@ -2,9 +2,6 @@ import { toDateInputValue } from '@/utils/date';
 
 export const MAX_TAGS = 5;
 
-// REVISIT: devlog-card.tsx에도 동일한 구현의 toLogFilename이 있어(총 3번째 등장).
-// Rule of Three 기준으로는 devlog-card.tsx도 이 유틸을 같이 쓰도록 정리하는 게 맞지만,
-// 이번 작업 범위가 devlog-form-modal.tsx로 한정돼 있어 devlog-card.tsx는 건드리지 않음.
 export const toLogFilename = (date: string) => toDateInputValue(new Date(date));
 
 export const maxLogDate = toDateInputValue(new Date());

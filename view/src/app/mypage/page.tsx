@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useStatsQuery } from '@/features/devlog';
@@ -18,12 +19,13 @@ export default function MyPage() {
   const logout = useLogout();
   const deleteAccount = useDeleteAccount();
 
-  if (meQuery.isLoading) {
-    return null;
-  }
+  useEffect(() => {
+    if (!meQuery.isLoading && !meQuery.data) {
+      router.replace('/');
+    }
+  }, [meQuery.isLoading, meQuery.data, router]);
 
-  if (!meQuery.data) {
-    router.replace('/');
+  if (meQuery.isLoading || !meQuery.data) {
     return null;
   }
 

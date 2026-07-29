@@ -11,7 +11,12 @@ import {
 
 export function useGuestDevLogs(search: string | undefined, tag: string | undefined) {
   const [version, setVersion] = useState(0);
-  const [error, setError] = useState<string | null>(null);
+  // 삭제 에러(배너)와 생성/수정 에러(폼)를 분리 — 인증 모드는 deleteDevLog/
+  // createDevLog/updateDevLog가 이미 서로 다른 뮤테이션이라 자연히 분리되는데,
+  // 게스트 모드는 하나의 error로 합쳐두면 생성 실패가 목록 에러·삭제 배너에도
+  // 잘못 나타난다.
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
   // localStorage는 브라우저 전용이라 SSR 결과와 다를 수 있다. 서버/클라이언트
   // 첫 렌더는 항상 빈 배열로 맞추고, 마운트 후 아래 effect에서 실제 값으로
   // 동기화해 hydration mismatch를 피한다.
@@ -27,37 +32,47 @@ export function useGuestDevLogs(search: string | undefined, tag: string | undefi
   }, [search, tag, version]);
 
   function refresh() {
-    setError(null);
     setVersion((v) => v + 1);
   }
 
   return {
     devLogs: logs,
     popularTags,
-    error,
-    create(input: CreateDevLogInput) {
+    deleteError,
+    formError,
+    create(input: CreateDevLogInput): boolean {
       try {
         guestStorage.create(input);
+        setFormError(null);
         refresh();
+        return true;
       } catch {
-        setError('브라우저 저장 공간이 부족해서 저장하지 못했어요.');
+        setFormError('브라우저 저장 공간이 부족해서 저장하지 못했어요.');
+        return false;
       }
     },
-    update(id: string, input: UpdateDevLogInput) {
+    update(id: string, input: UpdateDevLogInput): boolean {
       try {
         guestStorage.update(id, input);
+        setFormError(null);
         refresh();
-      } catch {
-        setError('수정에 실패했어요.');
+        return true;
+      } catch (err) {
+        setFormError(err instanceof Error ? err.message : '수정에 실패했어요.');
+        return false;
       }
     },
     remove(id: string) {
       try {
         guestStorage.remove(id);
+        setDeleteError(null);
         refresh();
       } catch {
-        setError('삭제에 실패했어요.');
+        setDeleteError('삭제에 실패했어요.');
       }
+    },
+    clearFormError() {
+      setFormError(null);
     },
   };
 }

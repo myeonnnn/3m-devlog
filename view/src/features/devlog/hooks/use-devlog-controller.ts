@@ -67,21 +67,19 @@ export const useGuestDevLogController = (filter: DevLogFilter): DevLogController
     devLogs: guest.devLogs,
     popularTags: guest.popularTags,
     isLoading: false,
-    listError: guest.error ? new Error(guest.error) : null,
-    bannerError: guest.error,
-    formError: guest.error,
+    listError: null,
+    bannerError: guest.deleteError,
+    formError: guest.formError,
     isSubmitting: false,
     submit: (input, editing, onDone) => {
-      if (editing) {
-        guest.update(editing.id, input);
-      } else {
-        guest.create(input);
-      }
-      onDone();
+      const succeeded = editing ? guest.update(editing.id, input) : guest.create(input);
+      if (succeeded) onDone();
     },
     remove: (devLog) => {
       guest.remove(devLog.id);
     },
-    resetForm: () => {},
+    resetForm: () => {
+      guest.clearFormError();
+    },
   };
 };

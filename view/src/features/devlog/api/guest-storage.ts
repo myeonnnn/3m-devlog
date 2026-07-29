@@ -5,20 +5,17 @@ import {
   PopularTag,
   UpdateDevLogInput,
 } from '../types';
+import { normalizeTag } from '../rules/devlog-form';
 
 const STORAGE_KEY = 'devlog:guest-logs';
-
-function normalizeTag(raw: string) {
-  const displayName = raw.trim().replace(/^#/, '');
-  return { displayName, normalized: displayName.toLowerCase() };
-}
 
 /** 대소문자 무관 중복 제거, 최초 입력값을 표시용으로 유지 (서버 쪽 규칙과 동일). */
 function dedupeTags(rawTags: string[]): string[] {
   const seen = new Map<string, string>();
   for (const raw of rawTags) {
-    const { displayName, normalized } = normalizeTag(raw);
+    const displayName = normalizeTag(raw);
     if (!displayName) continue;
+    const normalized = displayName.toLowerCase();
     if (!seen.has(normalized)) seen.set(normalized, displayName);
   }
   return [...seen.values()];

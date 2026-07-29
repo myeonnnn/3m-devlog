@@ -1,13 +1,10 @@
 import { DevLog } from '../types';
+import { toLogFilename } from '../rules/devlog-form';
 
 interface DevLogCardProps {
   devLog: DevLog;
   onEdit: (devLog: DevLog) => void;
   onDelete: (devLog: DevLog) => void;
-}
-
-function toLogFilename(date: string) {
-  return new Date(date).toISOString().slice(0, 10);
 }
 
 export function DevLogCard({ devLog, onEdit, onDelete }: DevLogCardProps) {

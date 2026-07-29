@@ -30,3 +30,10 @@ src/
 
 ## Node 버전 관련
 `next dev`가 tailwind oxide 네이티브 바이너리를 못 찾으면: Node를 LTS로 전환 후 `rm -rf node_modules package-lock.json && npm install`로 재설치.
+
+## 테스트
+Vitest + React Testing Library (`npm test` 1회 실행, `npm run test:watch` watch 모드). 서버는 Jest를 쓰지만 클라이언트는 Next.js/Vite 계열과 궁합이 좋은 Vitest로 별도 채택.
+
+- 테스트 파일은 대상 파일 옆에 콜로케이션 (`*.test.ts(x)`), 별도 `__tests__/` 폴더 안 씀 — feature colocation 원칙과 동일한 이유.
+- 우선순위: `rules/`·`utils/`의 순수 함수(가장 싸고 값어치 높음) → 버그가 실제로 살기 쉬운 훅(`use-*.ts`)의 분기/상태 로직 → 컴포넌트는 스냅샷 대신 사용자 행동 기준으로 선택적으로. E2E(Playwright)는 아직 미도입 — 훅 단위로 못 잡는 흐름(OAuth 리다이렉트 등)이 생기면 그때 검토.
+- localStorage를 쓰는 게스트 관련 테스트는 jsdom이 기본 제공하는 `Storage`를 그대로 쓰고, 실패 경로는 `vi.spyOn(Storage.prototype, 'setItem')`으로 강제 발생시킨다 — 모듈 자체를 mock하지 않고 실제에 가깝게 검증.

@@ -2,6 +2,15 @@
 
 import { useState } from 'react';
 import { CreateDevLogInput, DevLog } from '@/lib/types';
+import {
+  MAX_TAGS,
+  maxLogDate,
+  minLogDate,
+  normalizeTag,
+  toDateInputValue,
+  toLogFilename,
+  validateDevLogForm,
+} from '@/lib/devlog-form';
 
 interface DevLogFormModalProps {
   initial?: DevLog | null;
@@ -10,46 +19,6 @@ interface DevLogFormModalProps {
   onSubmit: (input: CreateDevLogInput) => void;
   onClose: () => void;
 }
-
-// 프레임워크 비의존 코어: React를 import하지 않는 순수 날짜/검증 로직.
-function toDateInputValue(date: Date) {
-  return date.toISOString().slice(0, 10);
-}
-
-// REVISIT: devlog-card.tsx에도 동일한 구현의 toLogFilename이 있어(총 3번째 등장).
-// Rule of Three 기준으로는 공유 lib/date 유틸로 뽑는 게 맞지만, 이번 리팩토링 범위가
-// page.tsx / devlog-form-modal.tsx 두 파일로 한정돼 있어 devlog-card.tsx는 건드리지 않음.
-function toLogFilename(date: string) {
-  return toDateInputValue(new Date(date));
-}
-
-function normalizeTag(raw: string) {
-  return raw.trim().replace(/^#/, '');
-}
-
-function validateDevLogForm(
-  learnedNote: string,
-  logDate: string,
-  minLogDate: string,
-  maxLogDate: string,
-): string | null {
-  if (!learnedNote.trim()) {
-    return '오늘 배운 점은 필수 입력이에요.';
-  }
-  if (logDate < minLogDate || logDate > maxLogDate) {
-    return '날짜는 오늘부터 과거 최대 1개월 이내여야 해요.';
-  }
-  return null;
-}
-
-const MAX_TAGS = 5;
-
-const maxLogDate = toDateInputValue(new Date());
-const minLogDate = (() => {
-  const oneMonthAgo = new Date();
-  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-  return toDateInputValue(oneMonthAgo);
-})();
 
 const fieldClass =
   'mt-1 w-full border border-line bg-ink px-3 py-2.5 text-sm text-text placeholder:text-dim placeholder:italic focus:border-signal focus:outline-none';
@@ -77,7 +46,7 @@ export function DevLogFormModal({
   // handleSubmit처럼 순수 함수로 뽑는 걸 고려했으나, 분기별로 tagInput/validationError를
   // 서로 다르게(또는 그대로 안) 리셋하는 미묘한 차이가 있어 그대로 함수로 추출하면
   // 그 비대칭 동작을 깨뜨릴 위험이 있다. 이득 대비 리스크가 커서 보류.
-  function addTag() {
+  const addTag = () => {
     const trimmed = normalizeTag(tagInput);
     if (!trimmed) return;
     if (tags.includes(trimmed)) {
@@ -91,9 +60,9 @@ export function DevLogFormModal({
     setTags([...tags, trimmed]);
     setTagInput('');
     setValidationError(null);
-  }
+  };
 
-  function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const submissionError = validateDevLogForm(learnedNote, logDate, minLogDate, maxLogDate);
     if (submissionError) {
@@ -108,7 +77,7 @@ export function DevLogFormModal({
       tomorrowTask: tomorrowTask.trim() || undefined,
       tags,
     });
-  }
+  };
 
   return (
     <div className="fixed inset-0 z-50 sm:flex sm:items-center sm:justify-center sm:bg-black/70 sm:p-4">

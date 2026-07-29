@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# view — 3m-devlog 프론트엔드
 
-## Getting Started
+Next.js 기반 프론트엔드. 서비스 개요·API 명세·배포는 [루트 README](../README.md) 참고.
 
-First, run the development server:
+## 스택
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js 16 (App Router, Turbopack)
+- TypeScript
+- Tailwind CSS v4
+- TanStack React Query
+- Vitest + React Testing Library (테스트)
+
+## 폴더 구조
+
+기능(도메인) 기준으로 분리한 구조. 상세 컨벤션·판단 기준은 [`CLAUDE.md`](./CLAUDE.md) 참고.
+
+```
+src/
+├── app/                # Next.js 라우트. 여러 feature를 조립만 함
+├── components/         # 앱 전역 공통 UI (특정 feature에 속하지 않는 것만)
+├── lib/                # 외부 라이브러리 초기화/설정 (api-client, providers 등)
+├── styles/             # 전역 스타일
+├── utils/              # 도메인 무관 순수 유틸 (날짜 포맷 등)
+└── features/<name>/    # 기능(도메인) 단위 모듈
+    ├── api/            # API 요청, 로컬 스토리지 등 데이터 접근
+    ├── components/      # 이 feature 전용 UI
+    ├── hooks/           # React Query/상태 훅
+    ├── rules/           # 도메인 고유 비즈니스 규칙 (매직값·검증 등)
+    ├── types/           # 이 feature의 타입
+    └── index.ts         # 공개 API (외부가 실제로 쓰는 것만 export)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+현재 `features/auth`, `features/devlog` 두 모듈이 있다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+UI 작업 시 컬러/타이포/컴포넌트 토큰은 [`../docs/design-system.md`](../docs/design-system.md)를 따른다.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 실행
 
-## Learn More
+### 요구사항
 
-To learn more about Next.js, take a look at the following resources:
+Node LTS (v24+). v18에서는 Next 16 typegen, Tailwind oxide 네이티브 바이너리가 깨진다.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 환경 변수 (`.env.local`)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| 변수 | 설명 | 기본값 |
+|---|---|---|
+| `NEXT_PUBLIC_API_BASE_URL` | server API 주소 | `http://localhost:3001` |
 
-## Deploy on Vercel
+### 개발 서버
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm install
+npm run dev        # http://localhost:3000
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 빌드 / 프로덕션 실행
+
+```bash
+npm run build
+npm run start
+```
+
+## 테스트
+
+```bash
+npm test            # 1회 실행
+npm run test:watch   # watch 모드
+npm run test:ui      # UI 모드
+```
+
+- 테스트 파일은 대상 파일과 같은 폴더의 `__tests__/` 하위에 둔다 (예: `hooks/use-devlogs.ts` → `hooks/__tests__/use-devlogs.test.ts`).
+- 우선순위: `rules/`·`utils/`의 순수 함수 → 훅(`use-*.ts`)의 분기/상태 로직 → 컴포넌트(스냅샷 대신 사용자 행동 기준, 선택적으로). E2E는 아직 미도입.
+
+## Lint
+
+```bash
+npm run lint
+```

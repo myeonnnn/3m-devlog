@@ -1,6 +1,6 @@
-export const MAX_TAGS = 5;
+import { toDateInputValue } from '@/utils/date';
 
-export const toDateInputValue = (date: Date) => date.toISOString().slice(0, 10);
+export const MAX_TAGS = 5;
 
 // REVISIT: devlog-card.tsx에도 동일한 구현의 toLogFilename이 있어(총 3번째 등장).
 // Rule of Three 기준으로는 devlog-card.tsx도 이 유틸을 같이 쓰도록 정리하는 게 맞지만,

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { authApi } from '@/lib/auth-api';
+import { authApi } from '../api/auth-api';
 
 const meKey = ['auth', 'me'] as const;
 

@@ -1,4 +1,4 @@
-import { DevLog } from '@/lib/types';
+import { DevLog } from '../types';
 
 interface DevLogCardProps {
   devLog: DevLog;

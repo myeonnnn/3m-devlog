@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { devlogApi } from '@/lib/devlog-api';
+import { devlogApi } from '../api/devlog-api';
 import {
   CreateDevLogInput,
   DevLogFilter,
   UpdateDevLogInput,
-} from '@/lib/types';
+} from '../types';
 
 const devlogKeys = {
   all: ['devlogs'] as const,

@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useStatsQuery } from '@/hooks/use-devlogs';
-import { useDeleteAccount, useLogout, useMeQuery } from '@/hooks/use-auth';
+import { useStatsQuery } from '@/features/devlog';
+import { useDeleteAccount, useLogout, useMeQuery } from '@/features/auth';
 
 const PROVIDER_LABEL: Record<string, string> = {
   GOOGLE: 'Google',

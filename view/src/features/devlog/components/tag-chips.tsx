@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { PopularTag } from '@/lib/types';
+import { PopularTag } from '../types';
 
 interface TagChipsProps {
   tags: PopularTag[];

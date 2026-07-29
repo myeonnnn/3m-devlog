@@ -1,5 +1,5 @@
-import { CurrentUser } from './types';
-import { API_BASE_URL, request } from './api-client';
+import { CurrentUser } from '../types';
+import { API_BASE_URL, request } from '@/lib/api-client';
 
 export const authApi = {
   googleLoginUrl: `${API_BASE_URL}/auth/google`,

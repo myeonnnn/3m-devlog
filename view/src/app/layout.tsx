@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
-import { Providers } from "@/components/providers";
+import { Providers } from "@/lib/providers";
 import { TerminalTitlebar } from "@/components/terminal-titlebar";
-import "./globals.css";
+import "@/styles/globals.css";
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",

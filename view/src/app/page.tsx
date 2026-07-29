@@ -2,15 +2,19 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { CreateDevLogInput, DevLog, DevLogFilter } from '@/lib/types';
-import { useAuthedDevLogController, useGuestDevLogController } from '@/hooks/use-devlog-controller';
-import { SearchBar } from '@/components/devlog/search-bar';
-import { TagChips } from '@/components/devlog/tag-chips';
-import { DevLogList } from '@/components/devlog/devlog-list';
-import { DevLogFormModal } from '@/components/devlog/devlog-form-modal';
-import { GuestBanner } from '@/components/auth/guest-banner';
+import {
+  CreateDevLogInput,
+  DevLog,
+  DevLogFilter,
+  useAuthedDevLogController,
+  useGuestDevLogController,
+  SearchBar,
+  TagChips,
+  DevLogList,
+  DevLogFormModal,
+} from '@/features/devlog';
+import { GuestBanner, useMeQuery, useLogout } from '@/features/auth';
 import { Logo } from '@/components/logo';
-import { useMeQuery, useLogout } from '@/hooks/use-auth';
 
 export default function Home() {
   const meQuery = useMeQuery();

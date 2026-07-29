@@ -1,4 +1,4 @@
-import { authApi } from '@/lib/auth-api';
+import { authApi } from '../api/auth-api';
 
 export function LoginButtons() {
   return (

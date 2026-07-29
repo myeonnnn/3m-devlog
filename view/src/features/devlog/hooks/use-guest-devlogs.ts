@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { guestStorage } from '@/lib/guest-storage';
+import { guestStorage } from '../api/guest-storage';
 import {
   CreateDevLogInput,
   DevLog,
   PopularTag,
   UpdateDevLogInput,
-} from '@/lib/types';
+} from '../types';
 
 export function useGuestDevLogs(search: string | undefined, tag: string | undefined) {
   const [version, setVersion] = useState(0);

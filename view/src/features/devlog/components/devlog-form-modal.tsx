@@ -1,16 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { CreateDevLogInput, DevLog } from '@/lib/types';
+import { CreateDevLogInput, DevLog } from '../types';
 import {
   MAX_TAGS,
   maxLogDate,
   minLogDate,
   normalizeTag,
-  toDateInputValue,
   toLogFilename,
   validateDevLogForm,
-} from '@/lib/devlog-form';
+} from '../rules/devlog-form';
+import { toDateInputValue } from '@/utils/date';
 
 interface DevLogFormModalProps {
   initial?: DevLog | null;

@@ -4,7 +4,7 @@ import {
   DevLogFilter,
   PopularTag,
   UpdateDevLogInput,
-} from './types';
+} from '../types';
 
 const STORAGE_KEY = 'devlog:guest-logs';
 

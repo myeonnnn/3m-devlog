@@ -5,8 +5,8 @@ import {
   DevLogStats,
   PopularTag,
   UpdateDevLogInput,
-} from './types';
-import { request } from './api-client';
+} from '../types';
+import { request } from '@/lib/api-client';
 
 export const devlogApi = {
   list(filter: DevLogFilter = {}): Promise<DevLog[]> {

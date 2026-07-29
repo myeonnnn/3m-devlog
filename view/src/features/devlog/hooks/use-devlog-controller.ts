@@ -1,12 +1,12 @@
-import { CreateDevLogInput, DevLog, DevLogFilter, PopularTag } from '@/lib/types';
+import { CreateDevLogInput, DevLog, DevLogFilter, PopularTag } from '../types';
 import {
   useCreateDevLog,
   useDeleteDevLog,
   useDevLogsQuery,
   usePopularTagsQuery,
   useUpdateDevLog,
-} from '@/hooks/use-devlogs';
-import { useGuestDevLogs } from '@/hooks/use-guest-devlogs';
+} from './use-devlogs';
+import { useGuestDevLogs } from './use-guest-devlogs';
 
 // isAuthed 여부가 데이터 소스/뮤테이션/렌더링을 여러 곳에서 갈라놓던 것을
 // 분기별 컨트롤러 하나로 모아, 호출부에서는 컨트롤러 선택 지점 하나만 남긴다.

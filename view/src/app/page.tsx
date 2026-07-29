@@ -15,6 +15,7 @@ import {
 } from '@/features/devlog';
 import { GuestBanner, useMeQuery, useLogout } from '@/features/auth';
 import { Logo } from '@/components/logo';
+import { Button } from '@/components/button';
 
 export default function Home() {
   const meQuery = useMeQuery();
@@ -90,13 +91,9 @@ export default function Home() {
             </p>
           )}
         </div>
-        <button
-          type="button"
-          onClick={openCreateForm}
-          className="flex h-11 items-center border border-signal px-4 text-sm text-signal"
-        >
+        <Button variant="signal" onClick={openCreateForm}>
           [ 새 로그 ]
-        </button>
+        </Button>
       </header>
 
       {!isAuthed && <GuestBanner />}

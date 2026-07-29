@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useStatsQuery } from '@/features/devlog';
-import { useDeleteAccount, useLogout, useMeQuery } from '@/features/auth';
-
-const PROVIDER_LABEL: Record<string, string> = {
-  GOOGLE: 'Google',
-  KAKAO: 'Kakao',
-};
+import {
+  PROVIDER_LABEL,
+  useDeleteAccount,
+  useLogout,
+  useMeQuery,
+} from '@/features/auth';
+import { Button } from '@/components/button';
 
 export default function MyPage() {
   const router = useRouter();
@@ -57,9 +58,7 @@ export default function MyPage() {
           </div>
           <div className="flex gap-2">
             <dt className="w-16 shrink-0 text-signal">login&gt;</dt>
-            <dd className="text-text">
-              {PROVIDER_LABEL[user.provider] ?? user.provider}
-            </dd>
+            <dd className="text-text">{PROVIDER_LABEL[user.provider]}</dd>
           </div>
         </dl>
       </div>
@@ -96,21 +95,14 @@ export default function MyPage() {
       </div>
 
       <div className="mt-auto flex flex-col gap-3 border-t border-line pt-6 sm:flex-row sm:justify-between">
-        <button
-          type="button"
-          onClick={() => logout.mutate()}
-          className="flex h-11 items-center justify-center border border-line px-4 text-sm text-text hover:border-signal hover:text-signal"
-        >
-          [ 로그아웃 ]
-        </button>
-        <button
-          type="button"
+        <Button onClick={() => logout.mutate()}>[ 로그아웃 ]</Button>
+        <Button
+          variant="danger"
           onClick={handleDeleteAccount}
           disabled={deleteAccount.isPending}
-          className="flex h-11 items-center justify-center border border-danger px-4 text-sm text-danger disabled:opacity-50"
         >
           {deleteAccount.isPending ? '[ 삭제 중... ]' : '[ 회원탈퇴 ]'}
-        </button>
+        </Button>
       </div>
 
       {deleteAccount.isError && (

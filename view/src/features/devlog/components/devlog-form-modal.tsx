@@ -11,6 +11,8 @@ import {
   validateDevLogForm,
 } from '../rules/devlog-form';
 import { toDateInputValue } from '@/utils/date';
+import { Button } from '@/components/button';
+import { Input, Textarea } from '@/components/input';
 
 interface DevLogFormModalProps {
   initial?: DevLog | null;
@@ -19,9 +21,6 @@ interface DevLogFormModalProps {
   onSubmit: (input: CreateDevLogInput) => void;
   onClose: () => void;
 }
-
-const fieldClass =
-  'mt-1 w-full border border-line bg-ink px-3 py-2.5 text-sm text-text placeholder:text-dim placeholder:italic focus:border-signal focus:outline-none';
 
 export function DevLogFormModal({
   initial,
@@ -89,43 +88,39 @@ export function DevLogFormModal({
         <form onSubmit={handleSubmit} className="mt-4 flex flex-1 flex-col gap-4">
           <div>
             <label className="text-sm text-signal">date&gt;</label>
-            <input
+            <Input
               type="date"
               value={logDate}
               onChange={(e) => setLogDate(e.target.value)}
               min={minLogDate}
               max={maxLogDate}
-              className={fieldClass}
             />
           </div>
 
           <div>
             <label className="text-sm text-signal">learned&gt; (필수)</label>
-            <textarea
+            <Textarea
               value={learnedNote}
               onChange={(e) => setLearnedNote(e.target.value)}
               rows={3}
-              className={fieldClass}
             />
           </div>
 
           <div>
             <label className="text-sm text-signal">bug&gt;</label>
-            <textarea
+            <Textarea
               value={troubleshootingNote}
               onChange={(e) => setTroubleshootingNote(e.target.value)}
               rows={2}
-              className={fieldClass}
             />
           </div>
 
           <div>
             <label className="text-sm text-signal">next&gt;</label>
-            <textarea
+            <Textarea
               value={tomorrowTask}
               onChange={(e) => setTomorrowTask(e.target.value)}
               rows={2}
-              className={fieldClass}
             />
           </div>
 
@@ -133,7 +128,7 @@ export function DevLogFormModal({
             <label className="text-sm text-signal">
               tags&gt; <span className="text-dim">({tags.length}/{MAX_TAGS})</span>
             </label>
-            <input
+            <Input
               type="text"
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
@@ -149,7 +144,7 @@ export function DevLogFormModal({
                   ? '태그 최대 개수에 도달했어요'
                   : '# 붙이거나 입력 후 Enter'
               }
-              className={`${fieldClass} disabled:opacity-50`}
+              className="disabled:opacity-50"
             />
             {tags.length > 0 && (
               <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-dim">
@@ -178,20 +173,12 @@ export function DevLogFormModal({
           )}
 
           <div className="mt-auto flex justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex h-11 items-center border border-line px-4 text-sm text-dim hover:text-text"
-            >
+            <Button variant="ghost" onClick={onClose}>
               [ 취소 ]
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex h-11 items-center border border-signal px-4 text-sm text-signal disabled:opacity-50"
-            >
+            </Button>
+            <Button type="submit" variant="signal" disabled={isSubmitting}>
               {isSubmitting ? '[ 저장 중... ]' : '[ 저장 ]'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

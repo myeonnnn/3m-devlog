@@ -40,3 +40,9 @@ body {
     transition-duration: 0.001ms !important;
   }
 }
+
+@layer components {
+  .field-input {
+    @apply mt-1 w-full border border-line bg-ink px-3 py-2.5 text-sm text-text placeholder:text-dim placeholder:italic focus:border-signal focus:outline-none;
+  }
+}

@@ -6,6 +6,12 @@ const PERIOD_DAYS: Record<'recent7' | 'recent30', number> = {
   recent30: 30,
 };
 
+export const PERIOD_OPTIONS: { value: DevLogPeriod; label: string }[] = [
+  { value: 'recent7', label: '최근 7일' },
+  { value: 'recent30', label: '최근 30일' },
+  { value: 'all', label: '전체' },
+];
+
 /**
  * period에 해당하는 최소 logDate(YYYY-MM-DD)를 반환한다. "최근 N일"은 오늘을 포함하므로
  * 오늘부터 (N - 1)일 전까지가 컷오프. period가 없거나 'all'이면 컷오프 없음(null).

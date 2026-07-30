@@ -7,6 +7,7 @@ import {
   DevLog,
   DevLogFilter,
   DevLogPeriod,
+  PERIOD_OPTIONS,
   useAuthedDevLogController,
   useGuestDevLogController,
   SearchBar,
@@ -17,12 +18,6 @@ import {
 import { GuestBanner, useMeQuery, useLogout } from '@/features/auth';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/button';
-
-const PERIOD_OPTIONS: { value: DevLogPeriod; label: string }[] = [
-  { value: 'recent7', label: '최근 7일' },
-  { value: 'recent30', label: '최근 30일' },
-  { value: 'all', label: '전체' },
-];
 
 export default function Home() {
   const meQuery = useMeQuery();

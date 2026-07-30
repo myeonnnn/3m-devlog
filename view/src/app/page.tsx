@@ -6,6 +6,7 @@ import {
   CreateDevLogInput,
   DevLog,
   DevLogFilter,
+  DevLogPeriod,
   useAuthedDevLogController,
   useGuestDevLogController,
   SearchBar,
@@ -17,6 +18,12 @@ import { GuestBanner, useMeQuery, useLogout } from '@/features/auth';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/button';
 
+const PERIOD_OPTIONS: { value: DevLogPeriod; label: string }[] = [
+  { value: 'recent7', label: '최근 7일' },
+  { value: 'recent30', label: '최근 30일' },
+  { value: 'all', label: '전체' },
+];
+
 export default function Home() {
   const meQuery = useMeQuery();
   const logout = useLogout();
@@ -24,10 +31,15 @@ export default function Home() {
 
   const [search, setSearch] = useState('');
   const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [period, setPeriod] = useState<DevLogPeriod>('recent7');
   const [editingDevLog, setEditingDevLog] = useState<DevLog | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
-  const filter: DevLogFilter = { search: search || undefined, tag: activeTag || undefined };
+  const filter: DevLogFilter = {
+    search: search || undefined,
+    tag: activeTag || undefined,
+    period,
+  };
   // REVISIT: Rules of Hooks 때문에 authed/guest 컨트롤러 둘 다 매 렌더 무조건 호출된다.
   // useAuthedDevLogController는 실제 인증 여부와 무관하게 항상 실행되고, 그 안의
   // react-query가 불필요한 네트워크 요청을 보내지 않으려면 enabled 플래그를 계속
@@ -74,6 +86,11 @@ export default function Home() {
           <div className="flex items-center gap-2">
             <Logo className="h-6 w-6" />
             <h1 className="text-xl font-bold text-text">3m-devlog</h1>
+            {controller.streakIcon && (
+              <span aria-label="연속 기록" className="text-lg">
+                {controller.streakIcon}
+              </span>
+            )}
           </div>
           {meQuery.data && (
             <p className="text-sm text-dim">
@@ -100,6 +117,26 @@ export default function Home() {
 
       <SearchBar onSearch={setSearch} />
 
+      <div className="flex flex-wrap gap-2">
+        {PERIOD_OPTIONS.map((option) => {
+          const isActive = period === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setPeriod(option.value)}
+              className={`min-h-11 border px-3 text-sm ${
+                isActive
+                  ? 'border-signal text-signal'
+                  : 'border-line text-dim hover:text-text'
+              }`}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+
       <TagChips tags={controller.popularTags} activeTag={activeTag} onSelect={setActiveTag} />
 
       {controller.bannerError && (
@@ -112,6 +149,9 @@ export default function Home() {
         error={controller.listError}
         onEdit={openEditForm}
         onDelete={handleDelete}
+        hasNextPage={controller.hasNextPage}
+        isFetchingNextPage={controller.isFetchingNextPage}
+        onLoadMore={controller.fetchNextPage}
       />
 
       {isFormOpen && (

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { guestStorage } from '../guest-storage';
 
 describe('guestStorage', () => {
@@ -59,5 +59,46 @@ describe('guestStorage', () => {
     const tags = guestStorage.popularTags();
     expect(tags[0]).toEqual({ tag: 'react', count: 2 });
     expect(tags[1]).toEqual({ tag: 'vue', count: 1 });
+  });
+
+  describe('list()의 period 필터 (오늘: 2026-07-30 기준)', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-07-30T00:00:00.000Z'));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('recent7이 8일 전(2026-07-22) 기록을 제외한다', () => {
+      guestStorage.create({ logDate: '2026-07-22', learnedNote: '8일 전' });
+      guestStorage.create({ logDate: '2026-07-24', learnedNote: '6일 전' });
+      const filtered = guestStorage.list({ period: 'recent7' });
+      expect(filtered.map((log) => log.learnedNote)).toEqual(['6일 전']);
+    });
+
+    it('recent30이 31일 전 기록은 제외하고 29일 전 기록은 포함한다', () => {
+      guestStorage.create({ logDate: '2026-06-29', learnedNote: '31일 전' });
+      guestStorage.create({ logDate: '2026-07-01', learnedNote: '29일 전' });
+      const filtered = guestStorage.list({ period: 'recent30' });
+      expect(filtered.map((log) => log.learnedNote)).toEqual(['29일 전']);
+    });
+
+    it('period가 없거나 all이면 전체를 반환한다', () => {
+      guestStorage.create({ logDate: '2020-01-01', learnedNote: '아주 오래 전' });
+      expect(guestStorage.list()).toHaveLength(1);
+      expect(guestStorage.list({ period: 'all' })).toHaveLength(1);
+    });
+
+    it('태그/검색 필터와 함께 적용했을 때 교집합으로 동작한다', () => {
+      guestStorage.create({ logDate: '2026-07-24', learnedNote: 'hooks 배우기', tags: ['react'] });
+      guestStorage.create({ logDate: '2026-07-24', learnedNote: 'hooks 배우기', tags: ['vue'] });
+      guestStorage.create({ logDate: '2026-07-22', learnedNote: 'hooks 배우기', tags: ['react'] });
+
+      const filtered = guestStorage.list({ period: 'recent7', tag: 'react', search: 'hooks' });
+      expect(filtered).toHaveLength(1);
+      expect(filtered[0].logDate).toBe('2026-07-24');
+    });
   });
 });

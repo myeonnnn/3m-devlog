@@ -45,6 +45,12 @@ export class DevLogController {
     return this.devLogService.stats(ownerId);
   }
 
+  @Get('streak')
+  @UseGuards(JwtAuthGuard)
+  streak(@OwnerId() ownerId: string) {
+    return this.devLogService.streak(ownerId);
+  }
+
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   findOne(@OwnerId() ownerId: string, @Param('id') id: string) {

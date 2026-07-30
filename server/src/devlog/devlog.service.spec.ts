@@ -261,6 +261,198 @@ describe('DevLogService', () => {
     });
   });
 
+  describe('findAll', () => {
+    function daysAgo(n: number) {
+      const date = new Date();
+      date.setDate(date.getDate() - n);
+      return date.toISOString().slice(0, 10);
+    }
+
+    beforeEach(() => {
+      prisma.devLog.findMany.mockResolvedValue([]);
+    });
+
+    it('period가 없으면 logDate 조건 없이 조회한다', async () => {
+      await service.findAll(ownerId, {});
+
+      const where = (
+        prisma.devLog.findMany.mock.calls[0][0] as {
+          where: Record<string, unknown>;
+        }
+      ).where;
+      expect(where.logDate).toBeUndefined();
+    });
+
+    it("period가 'recent7'이면 오늘 포함 최근 7일(오늘 - 6일 이상)만 조회한다", async () => {
+      await service.findAll(ownerId, { period: 'recent7' });
+
+      const where = (
+        prisma.devLog.findMany.mock.calls[0][0] as {
+          where: { logDate: { gte: Date } };
+        }
+      ).where;
+      expect(where.logDate.gte.toISOString().slice(0, 10)).toBe(daysAgo(6));
+    });
+
+    it("period가 'recent30'이면 오늘 포함 최근 30일(오늘 - 29일 이상)만 조회한다", async () => {
+      await service.findAll(ownerId, { period: 'recent30' });
+
+      const where = (
+        prisma.devLog.findMany.mock.calls[0][0] as {
+          where: { logDate: { gte: Date } };
+        }
+      ).where;
+      expect(where.logDate.gte.toISOString().slice(0, 10)).toBe(daysAgo(29));
+    });
+
+    it("period가 'all'이면 logDate 조건 없이 조회한다", async () => {
+      await service.findAll(ownerId, { period: 'all' });
+
+      const where = (
+        prisma.devLog.findMany.mock.calls[0][0] as {
+          where: Record<string, unknown>;
+        }
+      ).where;
+      expect(where.logDate).toBeUndefined();
+    });
+
+    it('기간 필터는 태그/키워드 검색과 교집합으로 함께 적용된다', async () => {
+      await service.findAll(ownerId, {
+        period: 'recent7',
+        tag: 'react',
+        search: '버그',
+      });
+
+      const where = (
+        prisma.devLog.findMany.mock.calls[0][0] as {
+          where: Record<string, unknown>;
+        }
+      ).where;
+      expect(where.logDate).toBeDefined();
+      expect(where.tags).toBeDefined();
+      expect(where.OR).toBeDefined();
+    });
+
+    describe('페이지네이션', () => {
+      function makeDevLog(id: string) {
+        return { id, ownerId, logDate: new Date(), tags: [] };
+      }
+
+      it('limit을 지정하지 않으면 기본 20건 기준으로 조회한다', async () => {
+        await service.findAll(ownerId, {});
+
+        const args = prisma.devLog.findMany.mock.calls[0][0] as {
+          take: number;
+        };
+        expect(args.take).toBe(21);
+      });
+
+      it('조회된 항목이 limit보다 많으면(다음 페이지 있음) nextCursor에 마지막 항목의 id가 담긴다', async () => {
+        const logs = Array.from({ length: 21 }, (_, i) =>
+          makeDevLog(`id-${i}`),
+        );
+        prisma.devLog.findMany.mockResolvedValue(logs);
+
+        const result = await service.findAll(ownerId, {});
+
+        expect(result.items).toHaveLength(20);
+        expect(result.nextCursor).toBe('id-19');
+      });
+
+      it('조회된 항목이 limit 이하이면 nextCursor는 null이다', async () => {
+        const logs = Array.from({ length: 5 }, (_, i) => makeDevLog(`id-${i}`));
+        prisma.devLog.findMany.mockResolvedValue(logs);
+
+        const result = await service.findAll(ownerId, { limit: 10 });
+
+        expect(result.items).toHaveLength(5);
+        expect(result.nextCursor).toBeNull();
+      });
+
+      it('cursor를 전달하면 해당 id 다음부터 조회한다', async () => {
+        await service.findAll(ownerId, { cursor: 'id-19' });
+
+        const args = prisma.devLog.findMany.mock.calls[0][0] as {
+          cursor?: { id: string };
+          skip?: number;
+        };
+        expect(args.cursor).toEqual({ id: 'id-19' });
+        expect(args.skip).toBe(1);
+      });
+
+      it('응답의 items는 기존과 동일하게 태그가 displayName 배열로 변환되어 있다', async () => {
+        prisma.devLog.findMany.mockResolvedValue([
+          {
+            id: 'id-1',
+            ownerId,
+            logDate: new Date(),
+            tags: [{ tag: { displayName: 'React' } }],
+          },
+        ]);
+
+        const result = await service.findAll(ownerId, {});
+
+        expect(result.items[0].tags).toEqual(['React']);
+      });
+    });
+  });
+
+  describe('streak', () => {
+    function dateNDaysAgo(n: number): Date {
+      const date = new Date();
+      date.setDate(date.getDate() - n);
+      return new Date(date.toISOString().slice(0, 10));
+    }
+
+    it('로그가 하나도 없으면 0을 반환한다', async () => {
+      prisma.devLog.findMany.mockResolvedValue([]);
+
+      const result = await service.streak(ownerId);
+
+      expect(result).toEqual({ days: 0 });
+    });
+
+    it('오늘 포함 3일 연속 기록이 있으면 3을 반환한다', async () => {
+      prisma.devLog.findMany.mockResolvedValue([
+        { logDate: dateNDaysAgo(0) },
+        { logDate: dateNDaysAgo(1) },
+        { logDate: dateNDaysAgo(2) },
+      ]);
+
+      const result = await service.streak(ownerId);
+
+      expect(result).toEqual({ days: 3 });
+    });
+
+    it('어제까지 3일 연속 기록이 있고 오늘 아직 기록이 없어도 3을 유지한다', async () => {
+      prisma.devLog.findMany.mockResolvedValue([
+        { logDate: dateNDaysAgo(1) },
+        { logDate: dateNDaysAgo(2) },
+        { logDate: dateNDaysAgo(3) },
+      ]);
+
+      const result = await service.streak(ownerId);
+
+      expect(result).toEqual({ days: 3 });
+    });
+
+    it('마지막 기록이 그제(오늘로부터 2일 전)이고 그 이후 기록이 없으면 0을 반환한다', async () => {
+      prisma.devLog.findMany.mockResolvedValue([{ logDate: dateNDaysAgo(2) }]);
+
+      const result = await service.streak(ownerId);
+
+      expect(result).toEqual({ days: 0 });
+    });
+
+    it('오늘 로그 하나만 있으면 1을 반환한다', async () => {
+      prisma.devLog.findMany.mockResolvedValue([{ logDate: dateNDaysAgo(0) }]);
+
+      const result = await service.streak(ownerId);
+
+      expect(result).toEqual({ days: 1 });
+    });
+  });
+
   describe('popularTags', () => {
     it('태그별 집계 개수와 함께 displayName을 반환한다', async () => {
       prisma.devLogTag.groupBy.mockResolvedValue([

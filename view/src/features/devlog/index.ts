@@ -13,6 +13,7 @@ export type {
   CreateDevLogInput,
   UpdateDevLogInput,
   DevLogFilter,
+  DevLogPeriod,
   PopularTag,
   DevLogStats,
 } from './types';

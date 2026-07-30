@@ -162,7 +162,7 @@ describe('DevLog (e2e)', () => {
       .set('Cookie', cookieFor(ownerId))
       .expect(200);
 
-    const devLogs = res.body as DevLogResponse[];
+    const { items: devLogs } = res.body as { items: DevLogResponse[] };
     expect(devLogs.length).toBeGreaterThan(0);
     expect(devLogs.every((log) => log.tags.includes('React'))).toBe(true);
   });
@@ -174,7 +174,7 @@ describe('DevLog (e2e)', () => {
       .set('Cookie', cookieFor(ownerId))
       .expect(200);
 
-    const devLogs = res.body as DevLogResponse[];
+    const { items: devLogs } = res.body as { items: DevLogResponse[] };
     expect(
       devLogs.some((log) => log.troubleshootingNote?.includes('CORS')),
     ).toBe(true);
@@ -184,7 +184,9 @@ describe('DevLog (e2e)', () => {
     const listRes = await request(app.getHttpServer())
       .get('/devlogs')
       .set('Cookie', cookieFor(ownerId));
-    const [devLog] = listRes.body as DevLogResponse[];
+    const {
+      items: [devLog],
+    } = listRes.body as { items: DevLogResponse[] };
 
     await request(app.getHttpServer())
       .get(`/devlogs/${devLog.id}`)
@@ -196,7 +198,9 @@ describe('DevLog (e2e)', () => {
     const listRes = await request(app.getHttpServer())
       .get('/devlogs')
       .set('Cookie', cookieFor(ownerId));
-    const [devLog] = listRes.body as DevLogResponse[];
+    const {
+      items: [devLog],
+    } = listRes.body as { items: DevLogResponse[] };
 
     const res = await request(app.getHttpServer())
       .patch(`/devlogs/${devLog.id}`)
@@ -212,7 +216,9 @@ describe('DevLog (e2e)', () => {
     const listRes = await request(app.getHttpServer())
       .get('/devlogs')
       .set('Cookie', cookieFor(ownerId));
-    const [devLog] = listRes.body as DevLogResponse[];
+    const {
+      items: [devLog],
+    } = listRes.body as { items: DevLogResponse[] };
 
     await request(app.getHttpServer())
       .delete(`/devlogs/${devLog.id}`)

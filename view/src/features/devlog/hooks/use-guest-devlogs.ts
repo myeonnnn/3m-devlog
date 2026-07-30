@@ -5,11 +5,16 @@ import { guestStorage } from '../api/guest-storage';
 import {
   CreateDevLogInput,
   DevLog,
+  DevLogPeriod,
   PopularTag,
   UpdateDevLogInput,
 } from '../types';
 
-export function useGuestDevLogs(search: string | undefined, tag: string | undefined) {
+export function useGuestDevLogs(
+  search: string | undefined,
+  tag: string | undefined,
+  period?: DevLogPeriod,
+) {
   const [version, setVersion] = useState(0);
   // 삭제 에러(배너)와 생성/수정 에러(폼)를 분리 — 인증 모드는 deleteDevLog/
   // createDevLog/updateDevLog가 이미 서로 다른 뮤테이션이라 자연히 분리되는데,
@@ -27,9 +32,9 @@ export function useGuestDevLogs(search: string | undefined, tag: string | undefi
     // 브라우저 전용 API(localStorage)를 마운트 이후에 동기화하는 케이스라
     // set-state-in-effect 룰의 정당한 예외에 해당한다.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLogs(guestStorage.list({ search, tag }));
+    setLogs(guestStorage.list({ search, tag, period }));
     setPopularTags(guestStorage.popularTags());
-  }, [search, tag, version]);
+  }, [search, tag, period, version]);
 
   function refresh() {
     setVersion((v) => v + 1);

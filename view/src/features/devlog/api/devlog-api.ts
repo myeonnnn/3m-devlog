@@ -2,6 +2,7 @@ import {
   CreateDevLogInput,
   DevLog,
   DevLogFilter,
+  DevLogPage,
   DevLogStats,
   PopularTag,
   UpdateDevLogInput,
@@ -9,12 +10,14 @@ import {
 import { request } from '@/lib/api-client';
 
 export const devlogApi = {
-  list(filter: DevLogFilter = {}): Promise<DevLog[]> {
+  list(filter: DevLogFilter = {}, cursor?: string): Promise<DevLogPage> {
     const params = new URLSearchParams();
     if (filter.search) params.set('search', filter.search);
     if (filter.tag) params.set('tag', filter.tag);
+    if (filter.period && filter.period !== 'all') params.set('period', filter.period);
+    if (cursor) params.set('cursor', cursor);
     const query = params.toString();
-    return request<DevLog[]>(`/devlogs${query ? `?${query}` : ''}`);
+    return request<DevLogPage>(`/devlogs${query ? `?${query}` : ''}`);
   },
 
   get(id: string): Promise<DevLog> {
@@ -45,5 +48,9 @@ export const devlogApi = {
 
   stats(): Promise<DevLogStats> {
     return request<DevLogStats>('/devlogs/stats');
+  },
+
+  streak(): Promise<{ days: number }> {
+    return request<{ days: number }>('/devlogs/streak');
   },
 };

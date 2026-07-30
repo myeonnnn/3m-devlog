@@ -6,6 +6,7 @@ import {
   UpdateDevLogInput,
 } from '../types';
 import { normalizeTag } from '../rules/devlog-form';
+import { resolvePeriodCutoff } from '../rules/period';
 
 const STORAGE_KEY = 'devlog:guest-logs';
 
@@ -38,6 +39,11 @@ function writeAll(logs: DevLog[]) {
 export const guestStorage = {
   list(filter: DevLogFilter = {}): DevLog[] {
     let logs = readAll();
+
+    const cutoff = resolvePeriodCutoff(filter.period);
+    if (cutoff) {
+      logs = logs.filter((log) => log.logDate >= cutoff);
+    }
 
     if (filter.tag) {
       const target = filter.tag.trim().toLowerCase();

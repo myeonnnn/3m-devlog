@@ -49,6 +49,14 @@ describe('useGuestDevLogController', () => {
     expect(result.current.formError).toBe('게스트 로그를 찾을 수 없어요.');
   });
 
+  it('게스트 모드에서는 hasNextPage가 항상 false이고 fetchNextPage가 아무 것도 하지 않는다', () => {
+    const { result } = renderHook(() => useGuestDevLogController({}));
+
+    expect(result.current.hasNextPage).toBe(false);
+    expect(result.current.isFetchingNextPage).toBe(false);
+    expect(() => result.current.fetchNextPage()).not.toThrow();
+  });
+
   it('resetForm()이 실패한 submit에서 남은 formError를 초기화한다', () => {
     const { result } = renderHook(() => useGuestDevLogController({}));
 

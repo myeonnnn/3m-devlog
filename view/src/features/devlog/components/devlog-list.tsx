@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { DevLog } from '../types';
 import { DevLogCard } from './devlog-card';
 
@@ -7,6 +8,9 @@ interface DevLogListProps {
   error: Error | null;
   onEdit: (devLog: DevLog) => void;
   onDelete: (devLog: DevLog) => void;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  onLoadMore?: () => void;
 }
 
 export function DevLogList({
@@ -15,7 +19,24 @@ export function DevLogList({
   error,
   onEdit,
   onDelete,
+  hasNextPage = false,
+  isFetchingNextPage = false,
+  onLoadMore,
 }: DevLogListProps) {
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage) return undefined;
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return undefined;
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0]?.isIntersecting) onLoadMore?.();
+    });
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, onLoadMore]);
+
   if (isLoading) {
     return <p className="text-sm text-dim">$ loading...</p>;
   }
@@ -47,6 +68,10 @@ export function DevLogList({
           <DevLogCard devLog={devLog} onEdit={onEdit} onDelete={onDelete} />
         </div>
       ))}
+      {isFetchingNextPage && <p className="text-sm text-dim">$ loading more...</p>}
+      {hasNextPage && !isFetchingNextPage && (
+        <div ref={sentinelRef} aria-hidden="true" className="h-4" />
+      )}
     </div>
   );
 }

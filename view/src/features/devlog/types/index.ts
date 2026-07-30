@@ -20,9 +20,12 @@ export interface CreateDevLogInput {
 
 export type UpdateDevLogInput = Partial<CreateDevLogInput>;
 
+export type DevLogPeriod = 'recent7' | 'recent30' | 'all';
+
 export interface DevLogFilter {
   search?: string;
   tag?: string;
+  period?: DevLogPeriod;
 }
 
 export interface PopularTag {
@@ -33,4 +36,9 @@ export interface PopularTag {
 export interface DevLogStats {
   totalCount: number;
   topTags: PopularTag[];
+}
+
+export interface DevLogPage {
+  items: DevLog[];
+  nextCursor: string | null;
 }

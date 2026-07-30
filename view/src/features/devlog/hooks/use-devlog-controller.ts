@@ -1,9 +1,11 @@
 import { CreateDevLogInput, DevLog, DevLogFilter, PopularTag } from '../types';
+import { resolveStreakIcon } from '../rules/streak';
 import {
   useCreateDevLog,
   useDeleteDevLog,
   useDevLogsQuery,
   usePopularTagsQuery,
+  useStreakQuery,
   useUpdateDevLog,
 } from './use-devlogs';
 import { useGuestDevLogs } from './use-guest-devlogs';
@@ -13,11 +15,15 @@ import { useGuestDevLogs } from './use-guest-devlogs';
 export interface DevLogController {
   devLogs: DevLog[];
   popularTags: PopularTag[];
+  streakIcon: string | null;
   isLoading: boolean;
   listError: Error | null;
   bannerError: string | null;
   formError: string | null;
   isSubmitting: boolean;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  fetchNextPage: () => void;
   submit: (input: CreateDevLogInput, editing: DevLog | null, onDone: () => void) => void;
   remove: (devLog: DevLog) => void;
   resetForm: () => void;
@@ -29,13 +35,15 @@ export const useAuthedDevLogController = (
 ): DevLogController => {
   const devLogsQuery = useDevLogsQuery(filter, { enabled });
   const popularTagsQuery = usePopularTagsQuery({ enabled });
+  const streakQuery = useStreakQuery({ enabled });
   const createDevLog = useCreateDevLog();
   const updateDevLog = useUpdateDevLog();
   const deleteDevLog = useDeleteDevLog();
 
   return {
-    devLogs: devLogsQuery.data ?? [],
+    devLogs: devLogsQuery.data?.pages.flatMap((page) => page.items) ?? [],
     popularTags: popularTagsQuery.data ?? [],
+    streakIcon: resolveStreakIcon(streakQuery.data?.days ?? 0),
     isLoading: devLogsQuery.isLoading,
     listError: devLogsQuery.error,
     bannerError: deleteDevLog.isError
@@ -43,6 +51,11 @@ export const useAuthedDevLogController = (
       : null,
     formError: createDevLog.error?.message ?? updateDevLog.error?.message ?? null,
     isSubmitting: createDevLog.isPending || updateDevLog.isPending,
+    hasNextPage: devLogsQuery.hasNextPage,
+    isFetchingNextPage: devLogsQuery.isFetchingNextPage,
+    fetchNextPage: () => {
+      devLogsQuery.fetchNextPage();
+    },
     submit: (input, editing, onDone) => {
       if (editing) {
         updateDevLog.mutate({ id: editing.id, input }, { onSuccess: onDone });
@@ -61,16 +74,20 @@ export const useAuthedDevLogController = (
 };
 
 export const useGuestDevLogController = (filter: DevLogFilter): DevLogController => {
-  const guest = useGuestDevLogs(filter.search, filter.tag);
+  const guest = useGuestDevLogs(filter.search, filter.tag, filter.period);
 
   return {
     devLogs: guest.devLogs,
     popularTags: guest.popularTags,
+    streakIcon: null,
     isLoading: false,
     listError: null,
     bannerError: guest.deleteError,
     formError: guest.formError,
     isSubmitting: false,
+    hasNextPage: false,
+    isFetchingNextPage: false,
+    fetchNextPage: () => {},
     submit: (input, editing, onDone) => {
       const succeeded = editing ? guest.update(editing.id, input) : guest.create(input);
       if (succeeded) onDone();

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { devlogApi } from '../api/devlog-api';
 import {
   CreateDevLogInput,
@@ -12,12 +12,15 @@ const devlogKeys = {
   detail: (id: string) => [...devlogKeys.all, 'detail', id] as const,
   popularTags: () => [...devlogKeys.all, 'popularTags'] as const,
   stats: () => [...devlogKeys.all, 'stats'] as const,
+  streak: () => [...devlogKeys.all, 'streak'] as const,
 };
 
 export function useDevLogsQuery(filter: DevLogFilter, options?: { enabled?: boolean }) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: devlogKeys.list(filter),
-    queryFn: () => devlogApi.list(filter),
+    queryFn: ({ pageParam }) => devlogApi.list(filter, pageParam),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     enabled: options?.enabled ?? true,
   });
 }
@@ -26,6 +29,14 @@ export function usePopularTagsQuery(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: devlogKeys.popularTags(),
     queryFn: () => devlogApi.popularTags(),
+    enabled: options?.enabled ?? true,
+  });
+}
+
+export function useStreakQuery(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: devlogKeys.streak(),
+    queryFn: () => devlogApi.streak(),
     enabled: options?.enabled ?? true,
   });
 }

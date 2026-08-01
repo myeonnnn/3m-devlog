@@ -56,3 +56,22 @@ model DevLogTag {
 
   @@id([devLogId, tagId])
 }
+
+enum InsightPeriodType {
+  WEEKLY
+  MONTHLY
+}
+
+model Insight {
+  id          String            @id @default(uuid())
+  ownerId     String
+  periodType  InsightPeriodType
+  periodKey   String
+  summary     String
+  patterns    String[]
+  logCount    Int
+  generatedAt DateTime          @default(now())
+
+  @@unique([ownerId, periodType, periodKey])
+  @@index([ownerId])
+}

@@ -11,6 +11,9 @@ type MockPrisma = {
   devLog: {
     deleteMany: jest.Mock;
   };
+  insight: {
+    deleteMany: jest.Mock;
+  };
   $transaction: jest.Mock;
 };
 
@@ -22,6 +25,9 @@ function createPrismaMock(): MockPrisma {
       delete: jest.fn(),
     },
     devLog: {
+      deleteMany: jest.fn(),
+    },
+    insight: {
       deleteMany: jest.fn(),
     },
     $transaction: jest.fn((ops: unknown[]) => Promise.all(ops)),
@@ -79,6 +85,9 @@ describe('UserService', () => {
 
       expect(prisma.$transaction).toHaveBeenCalledTimes(1);
       expect(prisma.devLog.deleteMany).toHaveBeenCalledWith({
+        where: { ownerId: 'user-1' },
+      });
+      expect(prisma.insight.deleteMany).toHaveBeenCalledWith({
         where: { ownerId: 'user-1' },
       });
       expect(prisma.user.delete).toHaveBeenCalledWith({

@@ -1,6 +1,15 @@
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3001';
 
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
 export async function request<T>(
   path: string,
   init: RequestInit = {},
@@ -17,7 +26,7 @@ export async function request<T>(
   if (!res.ok) {
     const body = await res.json().catch(() => null);
     const message = body?.message ?? res.statusText;
-    throw new Error(Array.isArray(message) ? message.join(', ') : message);
+    throw new ApiError(Array.isArray(message) ? message.join(', ') : message, res.status);
   }
 
   if (res.status === 204) {

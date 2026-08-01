@@ -10,12 +10,14 @@ import {
   useLogout,
   useMeQuery,
 } from '@/features/auth';
+import { InsightHistoryCard, useLatestInsightsQuery } from '@/features/insight';
 import { Button } from '@/components/button';
 
 export default function MyPage() {
   const router = useRouter();
   const meQuery = useMeQuery();
   const statsQuery = useStatsQuery({ enabled: !!meQuery.data });
+  const latestInsightsQuery = useLatestInsightsQuery({ enabled: !!meQuery.data });
   const logout = useLogout();
   const deleteAccount = useDeleteAccount();
 
@@ -93,6 +95,18 @@ export default function MyPage() {
               </dd>
             </div>
           </dl>
+        )}
+      </div>
+
+      <div>
+        <p className="text-sm text-dim">$ devlog insight --history</p>
+        {latestInsightsQuery.isLoading ? (
+          <p className="mt-2 text-sm text-dim">loading...</p>
+        ) : (
+          <div className="mt-2 space-y-4">
+            <InsightHistoryCard label="weekly" insight={latestInsightsQuery.data?.weekly} />
+            <InsightHistoryCard label="monthly" insight={latestInsightsQuery.data?.monthly} />
+          </div>
         )}
       </div>
 

@@ -6,3 +6,4 @@
 - Google OAuth consent screen이 "Testing" 상태면 등록된 테스트 계정만 로그인 가능 — 일반 사용자에게 열려면 게시/검증 절차 필요.
 - Kakao 앱이 "개발 중" 상태면 팀원 계정만 로그인 가능 — 일반 사용자에게 열려면 카카오 심사 필요.
 - `npm run start:prod`는 `NODE_ENV=production node dist/src/main`을 실행한다 (기본 Nest 템플릿의 `node dist/main`은 이 프로젝트의 빌드 출력 경로와 안 맞아 즉시 깨짐 — `nest build`가 `dist/generated`, `dist/src` 구조로 출력하기 때문).
+- AI 인사이트 기능(`src/insight/`)은 현재 로컬 `claude` CLI 서브프로세스로 동작하는 개발 전용 구현(`ClaudeCliInsightGenerator`)만 있다. 배포 환경에는 이 CLI가 없으므로, `NODE_ENV=production`이면 앱 부팅을 막지는 않되 인사이트 생성 요청 시 502로 명확히 안내만 한다. 실제로 프로덕션에서 이 기능을 쓰려면 실제 Anthropic API 키 기반의 새 `InsightGenerator` 구현체를 만들어 `src/insight/insight-generator.port.ts`의 포트를 교체해야 한다.

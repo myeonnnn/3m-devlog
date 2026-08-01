@@ -2,7 +2,8 @@ import { Inject, Injectable, UnprocessableEntityException } from '@nestjs/common
 import { PrismaService } from '../prisma/prisma.service';
 import { InsightPeriodType } from '../../generated/prisma/enums';
 import { resolvePeriodRange } from './period';
-import { INSIGHT_GENERATOR, InsightGenerator } from './insight-generator.port';
+import { INSIGHT_GENERATOR } from './insight-generator.port';
+import type { InsightGenerator } from './insight-generator.port';
 
 @Injectable()
 export class InsightService {

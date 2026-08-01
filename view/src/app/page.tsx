@@ -16,6 +16,11 @@ import {
   DevLogFormModal,
 } from '@/features/devlog';
 import { GuestBanner, useMeQuery, useLogout } from '@/features/auth';
+import {
+  InsightEntryButton,
+  InsightModal,
+  useInsightController,
+} from '@/features/insight';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/button';
 
@@ -29,6 +34,8 @@ export default function Home() {
   const [period, setPeriod] = useState<DevLogPeriod>('recent7');
   const [editingDevLog, setEditingDevLog] = useState<DevLog | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const insightController = useInsightController();
+  const [isInsightOpen, setIsInsightOpen] = useState(false);
 
   const filter: DevLogFilter = {
     search: search || undefined,
@@ -85,6 +92,9 @@ export default function Home() {
               <span aria-label="연속 기록" className="text-lg">
                 {controller.streakIcon}
               </span>
+            )}
+            {isAuthed && (
+              <InsightEntryButton onClick={() => setIsInsightOpen(true)} />
             )}
           </div>
           {meQuery.data && (
@@ -156,6 +166,13 @@ export default function Home() {
           error={controller.formError}
           onClose={closeForm}
           onSubmit={handleFormSubmit}
+        />
+      )}
+
+      {isInsightOpen && (
+        <InsightModal
+          controller={insightController}
+          onClose={() => setIsInsightOpen(false)}
         />
       )}
     </main>

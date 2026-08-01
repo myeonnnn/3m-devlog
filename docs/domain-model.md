@@ -21,6 +21,7 @@ flowchart LR
     subgraph ext["외부 시스템"]
         Google["Google OAuth"]
         Kakao["Kakao OAuth"]
+        ClaudeCli["로컬 Claude CLI"]
     end
 
     subgraph IdentityCtx["Identity Context (지원 서브도메인)"]
@@ -31,13 +32,20 @@ flowchart LR
         DevLog["DevLog Aggregate"]
     end
 
+    subgraph InsightCtx["Insight Context (지원 서브도메인)"]
+        Insight["Insight Aggregate"]
+    end
+
     Google -->|"프로필 정보"| IdentityCtx
     Kakao -->|"프로필 정보"| IdentityCtx
     IdentityCtx -->|"UserId (참조만 전달, Customer-Supplier)"| DevLogCtx
+    DevLogCtx -.->|"DevLog 읽기 전용 조회 (Prisma 직접 접근)"| InsightCtx
+    InsightCtx -->|"프롬프트 실행"| ClaudeCli
 ```
 
 - **Identity Context**: OAuth 제공자(Google/Kakao)로부터 받은 프로필을 내부 `User`로 변환(ACL 역할). 핵심 도메인이 아니므로 최소 기능만 유지.
 - **DevLog Context**: 실제 비즈니스 가치가 있는 핵심 도메인. `User` 전체가 아니라 `UserId`만 참조 — 두 컨텍스트를 강결합하지 않기 위함.
+- **Insight Context**: 로그인 사용자의 DevLog를 기간(주간/월간)별로 모아 AI 회고 요약을 생성하는 지원 서브도메인(`src/insight/`). DevLog 애그리거트를 커맨드로 변경하지 않고 조회만 하며, `DevLogService`를 의존/임포트하지 않고 `InsightService`가 Prisma로 DevLog 테이블을 직접 조회한다 — 컨텍스트 간 코드 결합 없이 데이터베이스 레벨의 읽기 전용 참조만 존재. 실제 요약 생성은 `InsightGenerator` 포트 뒤에 숨겨진 로컬 Claude CLI 서브프로세스(`ClaudeCliInsightGenerator`)가 담당하며, 포트만 구현하면 추후 실제 API 키 기반 구현으로 교체 가능.
 - 별도의 "Search Context"는 두지 않는다. 검색/인기태그는 DevLog 컬렉션에 대한 조회(Read Model) 관심사이지 독자적 애그리거트가 필요한 영역이 아님 (불필요한 컨텍스트 분리는 이 단계 규모에서 과설계).
 
 ## 3. 애그리거트 설계
@@ -113,6 +121,35 @@ classDiagram
   - `logDate`는 오늘부터 과거 최대 1개월 이내만 허용, 미래 날짜 불가 (2026-07-28-2 요구사항으로 확정).
   - 수정/삭제는 `ownerId == 요청자 UserId`인 경우에만 허용 (권한 검사는 애그리거트가 요청자 컨텍스트를 알고 커맨드를 거부하는 형태로 표현 — 상세는 애플리케이션 레이어에서 구체화).
 - **Tag를 별도 애그리거트로 분리하지 않은 이유**: Tag 자체는 독립적 생명주기나 식별자가 필요 없음. "인기 태그"는 Tag의 상태가 아니라 DevLog 컬렉션에 대한 집계 쿼리 결과이므로, Tag를 애그리거트로 승격시키면 DevLog 저장 시마다 별도 트랜잭션/동시성 문제만 늘어남 (과설계 방지).
+
+### 3.3 Insight Aggregate (Insight Context)
+
+```mermaid
+classDiagram
+    class Insight {
+        <<Aggregate Root>>
+        +InsightId id
+        +UserId ownerId
+        +InsightPeriodType periodType
+        +String periodKey
+        +String summary
+        +String[] patterns
+        +Int logCount
+        +DateTime generatedAt
+    }
+    class InsightPeriodType {
+        <<enum>>
+        WEEKLY
+        MONTHLY
+    }
+    Insight --> InsightPeriodType
+```
+
+- 불변식: `(ownerId, periodType, periodKey)` 조합은 유일 — 같은 기간을 다시 생성 요청하면 upsert로 덮어쓰고, 기간당 최신 1건만 남는다(과거 이력은 보관하지 않음).
+- `periodKey` 형식: 주간은 ISO 8601 주차(`"2026-W31"`), 월간은 캘린더월(`"2026-08"`). 오늘이 속한 기간보다 미래인 `periodKey`는 생성 요청 자체를 거부한다(애플리케이션 레이어 검증, `src/insight/period.ts`).
+- `logCount`는 LLM이 생성하지 않고, 서버가 해당 기간 DevLog 조회 결과 개수를 직접 세어 채운다 — 사용자에게 보이는 수치가 LLM 환각에 영향받지 않도록 결정론적으로 계산.
+- `summary`/`patterns`는 `InsightGenerator` 포트 호출 결과를 그대로 보관한다 — 애그리거트 자신은 생성 로직(어떤 LLM/CLI를 쓰는지)을 모른다.
+- DevLog와 마찬가지로 User 전체가 아닌 `ownerId`만 참조하는 단방향 관계이며, 원본 DevLog 로그 자체는 Insight에 저장하지 않고 매 생성 요청마다 재조회한다.
 
 ## 4. 리포지토리 경계
 

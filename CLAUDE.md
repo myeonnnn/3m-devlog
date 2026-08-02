@@ -84,6 +84,8 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 **예외 — 문서화 안 된 애드혹 요청** (인프라/리팩터링/스타일링 등 채팅으로 바로 지시받은, 별도 요구사항 문서가 없는 변경): `tasks/`에는 기록하지 않는다. `tasks/`는 제품 요구사항(문서화된 것) 기반 체크리스트 전용이고, 개발 중 생기는 이슈·지시·리팩토링 등은 커밋 메시지로 남긴다. 구조/정책에 실제로 영향이 있으면 2·3번(domain-model.md/policies.md 갱신)만 평소대로 수행.
 
+**아키텍처 결정 기록**: 되돌리기 어렵고 나중에 재논쟁될 가능성이 높은 기술적 결정(라이브러리/아키텍처/인증 방식 선택 등)은 [`docs/decisions.md`](./docs/decisions.md)에 append-only로 남긴다 (기준/포맷은 파일 상단 참고). `domain-model.md`/`policies.md`가 "현재 상태"를 담는다면, 이 로그는 "왜 그렇게 결정했는가"의 이력을 담는다 — 아래 "재발 가능성 높은 함정"(운영/트러블슈팅)과도 성격이 다르니 섞지 않는다.
+
 **재발 가능성 높은 함정:**
 - Node는 반드시 LTS(v24+) 사용. v18에서는 Next 16 typegen, tailwind oxide 네이티브 바이너리, Prisma 엔진이 다 깨짐.
 - `nvm use default`는 다음 Bash 호출에 안 남음(툴이 명령마다 새 셸 실행) — Node 필요한 커맨드엔 매번 `source $(brew --prefix nvm)/nvm.sh && nvm use default &&`를 같이 붙일 것.

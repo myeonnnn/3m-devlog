@@ -12,4 +12,12 @@ export const insightApi = {
   latest(): Promise<LatestInsights> {
     return request<LatestInsights>('/insights/latest');
   },
+
+  async getByPeriod(periodType: InsightPeriodType, periodKey: string): Promise<Insight | null> {
+    const params = new URLSearchParams({ periodType, periodKey });
+    const { insight } = await request<{ insight: Insight | null }>(
+      `/insights?${params.toString()}`,
+    );
+    return insight;
+  },
 };

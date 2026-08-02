@@ -7,14 +7,15 @@ import {
   isFuturePeriodKey,
   shiftPeriodKey,
 } from '../rules/period-key';
-import { useGenerateInsight } from './use-insights';
+import { useGenerateInsight, useInsightByPeriodQuery } from './use-insights';
 
 export interface InsightController {
   periodType: InsightPeriodType;
   periodLabel: string;
   canGoNext: boolean;
   insight: Insight | undefined;
-  isPending: boolean;
+  isLoading: boolean;
+  isGenerating: boolean;
   isEmptyPeriod: boolean;
   isError: boolean;
   switchPeriodType: (periodType: InsightPeriodType) => void;
@@ -22,9 +23,10 @@ export interface InsightController {
   generate: () => void;
 }
 
-export function useInsightController(): InsightController {
+export function useInsightController(enabled: boolean): InsightController {
   const [periodType, setPeriodType] = useState<InsightPeriodType>('WEEKLY');
   const [periodKey, setPeriodKey] = useState(() => currentPeriodKey('WEEKLY'));
+  const savedInsightQuery = useInsightByPeriodQuery(periodType, periodKey, { enabled });
   const generateInsight = useGenerateInsight();
 
   const switchPeriodType = (nextType: InsightPeriodType) => {
@@ -46,10 +48,11 @@ export function useInsightController(): InsightController {
     periodType,
     periodLabel: formatPeriodLabel(periodType, periodKey),
     canGoNext: !isFuturePeriodKey(periodType, nextPeriodKey),
-    insight: generateInsight.data,
-    isPending: generateInsight.isPending,
+    insight: generateInsight.data ?? savedInsightQuery.data ?? undefined,
+    isLoading: savedInsightQuery.isLoading,
+    isGenerating: generateInsight.isPending,
     isEmptyPeriod: isEmptyPeriodError,
-    isError: generateInsight.isError && !isEmptyPeriodError,
+    isError: (generateInsight.isError && !isEmptyPeriodError) || savedInsightQuery.isError,
     switchPeriodType,
     shiftPeriod,
     generate: () => generateInsight.mutate({ periodType, periodKey }),

@@ -34,7 +34,7 @@ export default function Home() {
   const [period, setPeriod] = useState<DevLogPeriod>('recent7');
   const [editingDevLog, setEditingDevLog] = useState<DevLog | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const insightController = useInsightController();
+  const insightController = useInsightController(isAuthed);
   const [isInsightOpen, setIsInsightOpen] = useState(false);
 
   const filter: DevLogFilter = {
@@ -93,9 +93,6 @@ export default function Home() {
                 {controller.streakIcon}
               </span>
             )}
-            {isAuthed && (
-              <InsightEntryButton onClick={() => setIsInsightOpen(true)} />
-            )}
           </div>
           {meQuery.data && (
             <p className="text-sm text-dim">
@@ -113,9 +110,12 @@ export default function Home() {
             </p>
           )}
         </div>
-        <Button variant="signal" onClick={openCreateForm}>
-          [ 새 로그 ]
-        </Button>
+        <div className="flex gap-2">
+          {isAuthed && <InsightEntryButton onClick={() => setIsInsightOpen(true)} />}
+          <Button variant="signal" onClick={openCreateForm}>
+            [ 새 로그 ]
+          </Button>
+        </div>
       </header>
 
       {!isAuthed && <GuestBanner />}

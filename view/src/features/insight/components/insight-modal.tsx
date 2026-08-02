@@ -20,7 +20,8 @@ export function InsightModal({ controller, onClose }: InsightModalProps) {
     periodLabel,
     canGoNext,
     insight,
-    isPending,
+    isLoading,
+    isGenerating,
     isEmptyPeriod,
     isError,
     switchPeriodType,
@@ -72,7 +73,8 @@ export function InsightModal({ controller, onClose }: InsightModalProps) {
         </div>
 
         <div className="mt-4 flex-1">
-          {isPending && <p className="text-sm text-dim">AI가 회고를 작성하는 중...</p>}
+          {isLoading && <p className="text-sm text-dim">불러오는 중...</p>}
+          {isGenerating && <p className="text-sm text-dim">AI가 회고를 작성하는 중...</p>}
           {isEmptyPeriod && <p className="text-sm text-dim">이 기간에 기록이 없습니다.</p>}
           {isError && (
             <p className="text-sm text-danger">인사이트 생성에 실패했어요, 다시 시도해주세요.</p>
@@ -96,8 +98,8 @@ export function InsightModal({ controller, onClose }: InsightModalProps) {
           <Button variant="ghost" onClick={onClose}>
             [ 닫기 ]
           </Button>
-          <Button variant="signal" onClick={generate} disabled={isPending}>
-            {isPending ? '[ 생성 중... ]' : '[ 생성하기 ]'}
+          <Button variant="signal" onClick={generate} disabled={isGenerating || isLoading}>
+            {isGenerating ? '[ 생성 중... ]' : insight ? '[ 재생성 ]' : '[ 생성하기 ]'}
           </Button>
         </div>
       </div>

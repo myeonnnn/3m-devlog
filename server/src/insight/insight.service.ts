@@ -1,4 +1,8 @@
-import { Inject, Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { InsightPeriodType } from '../../generated/prisma/enums';
 import { resolvePeriodRange } from './period';
@@ -9,10 +13,15 @@ import type { InsightGenerator } from './insight-generator.port';
 export class InsightService {
   constructor(
     private readonly prisma: PrismaService,
-    @Inject(INSIGHT_GENERATOR) private readonly insightGenerator: InsightGenerator,
+    @Inject(INSIGHT_GENERATOR)
+    private readonly insightGenerator: InsightGenerator,
   ) {}
 
-  async generate(ownerId: string, periodType: InsightPeriodType, periodKey: string) {
+  async generate(
+    ownerId: string,
+    periodType: InsightPeriodType,
+    periodKey: string,
+  ) {
     const range = resolvePeriodRange(periodType, periodKey);
 
     const logs = await this.prisma.devLog.findMany({
@@ -34,9 +43,37 @@ export class InsightService {
     });
 
     return this.prisma.insight.upsert({
-      where: { ownerId_periodType_periodKey: { ownerId, periodType, periodKey } },
-      create: { ownerId, periodType, periodKey, summary, patterns, logCount: logs.length },
-      update: { summary, patterns, logCount: logs.length, generatedAt: new Date() },
+      where: {
+        ownerId_periodType_periodKey: { ownerId, periodType, periodKey },
+      },
+      create: {
+        ownerId,
+        periodType,
+        periodKey,
+        summary,
+        patterns,
+        logCount: logs.length,
+      },
+      update: {
+        summary,
+        patterns,
+        logCount: logs.length,
+        generatedAt: new Date(),
+      },
+    });
+  }
+
+  async findByPeriod(
+    ownerId: string,
+    periodType: InsightPeriodType,
+    periodKey: string,
+  ) {
+    resolvePeriodRange(periodType, periodKey);
+
+    return this.prisma.insight.findUnique({
+      where: {
+        ownerId_periodType_periodKey: { ownerId, periodType, periodKey },
+      },
     });
   }
 

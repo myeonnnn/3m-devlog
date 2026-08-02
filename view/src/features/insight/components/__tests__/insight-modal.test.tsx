@@ -10,7 +10,8 @@ function buildController(overrides: Partial<InsightController> = {}): InsightCon
     periodLabel: '2026-W31 (07/27~08/02)',
     canGoNext: true,
     insight: undefined,
-    isPending: false,
+    isLoading: false,
+    isGenerating: false,
     isEmptyPeriod: false,
     isError: false,
     switchPeriodType: vi.fn(),
@@ -71,6 +72,32 @@ describe('InsightModal', () => {
     render(<InsightModal controller={controller} onClose={() => {}} />);
     await userEvent.click(screen.getByText('[ 생성하기 ]'));
     expect(controller.generate).toHaveBeenCalledTimes(1);
+  });
+
+  it('저장된 결과 조회 중이면 불러오는 중 문구를 보여준다', () => {
+    render(<InsightModal controller={buildController({ isLoading: true })} onClose={() => {}} />);
+    expect(screen.getByText('불러오는 중...')).toBeInTheDocument();
+  });
+
+  it('이미 저장된 결과가 있으면 버튼 라벨이 재생성으로 바뀐다', () => {
+    render(
+      <InsightModal
+        controller={buildController({
+          insight: {
+            id: '1',
+            ownerId: 'owner',
+            periodType: 'WEEKLY',
+            periodKey: '2026-W31',
+            summary: '이번 주 요약',
+            patterns: [],
+            logCount: 1,
+            generatedAt: '2026-08-01T00:00:00.000Z',
+          },
+        })}
+        onClose={() => {}}
+      />,
+    );
+    expect(screen.getByText('[ 재생성 ]')).toBeInTheDocument();
   });
 
   it('주간/월간 토글 클릭 시 controller.switchPeriodType를 호출한다', async () => {

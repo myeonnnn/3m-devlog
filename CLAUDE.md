@@ -96,3 +96,4 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - 이 레포는 여러 워크트리 세션이 동시에 `v1`에 푸시할 수 있음 — push 전 `git fetch`로 원격이 앞서 있는지 확인, rejected면 `git pull origin v1 --no-rebase` 후 재푸시.
 - `server` 테스트: `make test`(유닛) / `make test-e2e`(Postgres 기동 후 e2e) / `make test-all`.
 - Claude Code CLI를 서브프로세스로 호출할 때 `--output-format json --json-schema '<스키마>'`를 같이 주면 최상위 응답에 `structured_output` 필드로 스키마에 맞게 이미 파싱된 객체가 온다 (`result`는 같은 내용의 문자열이라 이중 파싱 불필요). `is_error` 필드로 실패 여부 확인. `--disallowedTools`로 불필요한 도구(Bash/Read/Write/...)를 막아도 정상 동작.
+- Nest 컨트롤러가 `null`을 그대로 반환하면 Express 어댑터가 `response.end()`만 호출해 **빈 바디**로 응답한다(JSON `"null"`이 아님) — 클라이언트의 `res.json()`이 빈 바디를 파싱하다 `SyntaxError`로 죽는다. "값 없음"을 응답해야 하는 GET 엔드포인트는 top-level에 `null`을 바로 리턴하지 말고 `{ data: null }`처럼 객체로 감싼다. e2e 테스트로 실제 HTTP 응답 바디를 assert해야 잡히는 종류의 버그이니, unit 테스트(서비스 레이어)만으로는 이 케이스를 놓친다.

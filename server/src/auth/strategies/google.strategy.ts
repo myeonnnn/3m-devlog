@@ -8,7 +8,7 @@ import { AuthProvider } from '../../../generated/prisma/enums';
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(private readonly userService: UserService) {
     super({
-      clientID: process.env.GOOGLE_CLIENT_ID ?? '',
+      clientID: process.env.GOOGLE_CLIENT_ID || 'unconfigured-google-client-id',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
       callbackURL: process.env.GOOGLE_CALLBACK_URL ?? '',
       scope: ['profile', 'email'],

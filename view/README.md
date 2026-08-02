@@ -1,6 +1,6 @@
 # view — 3m-devlog 프론트엔드
 
-Next.js 기반 프론트엔드. 서비스 개요·API 명세·배포는 [루트 README](../README.md) 참고.
+Next.js 기반 프론트엔드. 서비스 개요·배포는 [루트 README](../README.md), API 명세는 [server README](../server/README.md) 참고.
 
 ## 스택
 
@@ -70,6 +70,16 @@ npm run test:ui      # UI 모드
 
 - 테스트 파일은 대상 파일과 같은 폴더의 `__tests__/` 하위에 둔다 (예: `hooks/use-devlogs.ts` → `hooks/__tests__/use-devlogs.test.ts`).
 - 우선순위: `rules/`·`utils/`의 순수 함수 → 훅(`use-*.ts`)의 분기/상태 로직 → 컴포넌트(스냅샷 대신 사용자 행동 기준, 선택적으로). E2E는 아직 미도입.
+
+## 아키텍처 노트
+
+프레젠테이션과 비즈니스 로직(데이터 패칭/뮤테이션)을 계층으로 분리했다.
+
+- `src/lib/`: 도메인 타입, 순수 fetch API 클라이언트(`api-client.ts`, `devlog-api.ts`, `auth-api.ts`), 게스트 로컬 저장소(`guest-storage.ts`)
+- `src/hooks/use-devlogs.ts`, `use-auth.ts`, `use-guest-devlogs.ts`: React Query(또는 로컬 상태) 훅 — 비즈니스 로직 계층
+- `src/components/devlog/`, `src/components/auth/`: 프레젠테이션 전용 컴포넌트 (props/콜백으로만 동작, 데이터 패칭 없음)
+- `src/app/page.tsx`: 인증 여부에 따라 API 훅 / 게스트 훅 중 실제 데이터 소스만 분기 (컴포넌트는 공용), 비로그인 시 `GuestBanner` 노출
+- `src/app/mypage/page.tsx`: 마이페이지 — 프로필/통계 조회, 로그아웃/회원탈퇴
 
 ## Lint
 

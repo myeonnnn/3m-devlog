@@ -17,6 +17,7 @@ src/
 ├── auth/       # Passport 전략(Google/Kakao/JWT), 로그인/콜백/me/logout/회원탈퇴 컨트롤러
 ├── users/      # User 조회/find-or-create, 계정 삭제 (Identity Context)
 ├── devlog/     # DevLog 컨트롤러/서비스/DTO
+├── insight/    # AI 인사이트 생성/조회 (현재 로컬 Claude CLI 기반, 아래 "AI 인사이트" 참고)
 ├── prisma/     # PrismaService/PrismaModule (전역 모듈)
 └── common/     # 공용 데코레이터 (OwnerId 등)
 prisma/
@@ -112,6 +113,22 @@ make test-all     # 유닛 + e2e
 - 소유자가 아니면 403, 존재하지 않으면 404.
 - 태그는 대소문자 무관하게 정규화되어 중복 없이 저장되고, `displayName`은 최초 입력값을 유지한다.
 - Postman으로 테스트하려면 `postman_collection.json`을 임포트 (단, 로그인 라우트는 브라우저 리다이렉트 흐름이라 Postman만으로는 전체 플로우 테스트가 어려움 — 브라우저에서 로그인 후 쿠키를 복사해 사용).
+
+### AI 인사이트
+
+베이스 경로: `/insights`. 모든 요청은 로그인(쿠키) 필요.
+
+| Method | Path | 설명 |
+|---|---|---|
+| POST | `/insights/generate` | 특정 기간(`periodType`/`periodKey`) DevLog 묶음으로 인사이트(요약/패턴) 생성 |
+| GET | `/insights?periodType=&periodKey=` | 특정 기간 인사이트 조회 |
+| GET | `/insights/latest` | 가장 최근 생성된 인사이트 조회 |
+
+**⚠️ 로컬 개발 전용 구현**: 인사이트 생성은 실제 Anthropic API 키를 쓰지 않고, 로컬에 설치된 **Claude Code CLI(`claude`)를 서브프로세스로 실행**해서 만든다 (`src/insight/claude-cli-insight-generator.ts`의 `ClaudeCliInsightGenerator`). 로컬 머신에 `claude` CLI가 설치·로그인되어 있어야 이 기능이 동작한다.
+
+- `NODE_ENV=production`에서는 `POST /insights/generate` 호출 시 바로 502를 던진다 — 프로덕션에서는 아직 이 기능을 쓸 수 없다.
+- `InsightGenerator` 포트(`insight-generator.port.ts`) 뒤에 구현체를 숨겨둔 어댑터 구조라, 나중에 실제 API 키 기반 구현(예: Anthropic Messages API 직접 호출)으로 교체할 때 `insight.module.ts`의 provider만 바꾸면 된다.
+- 실행 커맨드: `claude -p <prompt> --output-format json --json-schema <스키마> --allowedTools '' --strict-mcp-config` — 텍스트 생성만 필요하므로 도구/MCP 접근은 전부 차단.
 
 ## 아키텍처 노트
 

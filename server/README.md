@@ -71,6 +71,14 @@ npm run start:dev   # http://localhost:3001 (PORT로 변경 가능)
 
 기본 포트는 3000이지만 Next.js 개발 서버와 겹치므로 `PORT=3001`로 띄운다.
 
+### 5. API 문서 (Swagger)
+
+개발 서버가 떠 있으면 `http://localhost:3001/docs`에서 Swagger UI로 전체 API 스펙을 확인·테스트할 수 있다 (`NODE_ENV=production`에서는 비활성화).
+
+```bash
+npm run export:openapi   # openapi.json으로 정적 export (Postgres 불필요, view의 hey-api 코드 생성 입력으로 사용)
+```
+
 ## 테스트
 
 ```bash
@@ -84,6 +92,8 @@ make test-all     # 유닛 + e2e
 - Prisma 7 클라이언트가 WASM 쿼리 컴파일러를 동적 import하므로 e2e는 `NODE_OPTIONS=--experimental-vm-modules`로 실행한다 (`test:e2e` 스크립트에 포함됨).
 
 ## API
+
+아래는 요약이고, 최신 스펙은 개발 서버 실행 중 `/docs`(Swagger UI, 위 참고)에서 확인하는 게 정확하다.
 
 ### 인증
 

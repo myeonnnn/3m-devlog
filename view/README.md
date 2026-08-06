@@ -8,6 +8,7 @@ Next.js 기반 프론트엔드. 서비스 개요·배포는 [루트 README](../R
 - TypeScript
 - Tailwind CSS v4
 - TanStack React Query
+- hey-api (`@hey-api/openapi-ts`) — server의 OpenAPI 스펙에서 타입/SDK/React Query 훅 생성 (현재 devlog feature만 적용)
 - Vitest + React Testing Library (테스트)
 
 ## 폴더 구조
@@ -60,6 +61,16 @@ npm run build
 npm run start
 ```
 
+### API 타입/SDK 생성 (devlog feature)
+
+server에서 먼저 `npm run export:openapi`로 `../server/openapi.json`을 만든 뒤:
+
+```bash
+npm run generate:api   # src/lib/api/generated/ 에 타입 + SDK + React Query 훅 생성, git에 커밋됨
+```
+
+server의 devlog DTO가 바뀌면 다시 실행해서 재생성해야 한다. 생성 결과는 `openapi-ts.config.ts` 설정을 따른다.
+
 ## 테스트
 
 ```bash
@@ -80,6 +91,7 @@ npm run test:ui      # UI 모드
 - `src/components/devlog/`, `src/components/auth/`: 프레젠테이션 전용 컴포넌트 (props/콜백으로만 동작, 데이터 패칭 없음)
 - `src/app/page.tsx`: 인증 여부에 따라 API 훅 / 게스트 훅 중 실제 데이터 소스만 분기 (컴포넌트는 공용), 비로그인 시 `GuestBanner` 노출
 - `src/app/mypage/page.tsx`: 마이페이지 — 프로필/통계 조회, 로그아웃/회원탈퇴
+- `src/lib/api/generated/`: hey-api가 생성한 타입/SDK/React Query 훅 (devlog feature만, 위 "API 타입/SDK 생성" 참고). `src/lib/api/client-config.ts`에서 baseUrl/credentials 및 에러 메시지 정규화 설정
 
 ## Lint
 

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { ApiError } from '@/lib/api-client';
 import { Insight, InsightPeriodType } from '../types';
 import {
   currentPeriodKey,
@@ -41,8 +40,9 @@ export function useInsightController(enabled: boolean): InsightController {
   };
 
   const nextPeriodKey = shiftPeriodKey(periodType, periodKey, 1);
+  // hey-api는 서버 에러 바디를 그대로 던지므로(statusCode 필드, Error 인스턴스 아님) 캐스팅해서 확인한다.
   const isEmptyPeriodError =
-    generateInsight.error instanceof ApiError && generateInsight.error.status === 422;
+    (generateInsight.error as { statusCode?: number } | null)?.statusCode === 422;
 
   return {
     periodType,
@@ -55,6 +55,6 @@ export function useInsightController(enabled: boolean): InsightController {
     isError: (generateInsight.isError && !isEmptyPeriodError) || savedInsightQuery.isError,
     switchPeriodType,
     shiftPeriod,
-    generate: () => generateInsight.mutate({ periodType, periodKey }),
+    generate: () => generateInsight.mutate({ body: { periodType, periodKey } }),
   };
 }

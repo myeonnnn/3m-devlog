@@ -38,9 +38,12 @@ export default function MyPage() {
       '정말로 계정을 삭제할까요? 계정과 작성한 모든 로그가 영구적으로 삭제되며 복구할 수 없어요.',
     );
     if (!confirmed) return;
-    deleteAccount.mutate(undefined, {
-      onSuccess: () => router.replace('/'),
-    });
+    deleteAccount.mutate(
+      {},
+      {
+        onSuccess: () => router.replace('/'),
+      },
+    );
   }
 
   return (
@@ -111,7 +114,7 @@ export default function MyPage() {
       </div>
 
       <div className="mt-auto flex flex-col gap-3 border-t border-line pt-6 sm:flex-row sm:justify-between">
-        <Button onClick={() => logout.mutate()}>[ 로그아웃 ]</Button>
+        <Button onClick={() => logout.mutate({})}>[ 로그아웃 ]</Button>
         <Button
           variant="danger"
           onClick={handleDeleteAccount}

@@ -1,6 +1,3 @@
-export interface CurrentUser {
-  id: string;
-  displayName: string;
-  email: string | null;
-  provider: 'GOOGLE' | 'KAKAO';
-}
+import type { MeResponseDto } from '@/lib/api/generated/types.gen';
+
+export type CurrentUser = MeResponseDto;

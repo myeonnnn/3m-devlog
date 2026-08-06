@@ -102,7 +102,7 @@ export default function Home() {
               </Link>{' '}
               <button
                 type="button"
-                onClick={() => logout.mutate()}
+                onClick={() => logout.mutate({})}
                 className="text-signal hover:underline"
               >
                 logout

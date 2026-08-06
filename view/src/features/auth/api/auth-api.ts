@@ -1,24 +1,7 @@
-import { CurrentUser } from '../types';
-import { API_BASE_URL, request } from '@/lib/api-client';
+import { API_BASE_URL } from '@/lib/api-client';
 
+// OAuth 리다이렉트 라우트라 Swagger 문서/hey-api 생성 대상에서 제외돼 있음 — URL만 수동 유지.
 export const authApi = {
   googleLoginUrl: `${API_BASE_URL}/auth/google`,
   kakaoLoginUrl: `${API_BASE_URL}/auth/kakao`,
-
-  async me(): Promise<CurrentUser | null> {
-    const res = await fetch(`${API_BASE_URL}/auth/me`, {
-      credentials: 'include',
-    });
-    if (res.status === 401) return null;
-    if (!res.ok) throw new Error('로그인 상태를 확인하지 못했어요.');
-    return res.json() as Promise<CurrentUser>;
-  },
-
-  logout(): Promise<void> {
-    return request<void>('/auth/logout', { method: 'POST' });
-  },
-
-  deleteAccount(): Promise<void> {
-    return request<void>('/auth/me', { method: 'DELETE' });
-  },
 };

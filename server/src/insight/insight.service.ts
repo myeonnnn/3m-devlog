@@ -68,6 +68,7 @@ export class InsightService {
     periodType: InsightPeriodType,
     periodKey: string,
   ) {
+    // 범위 자체는 조회에 쓰지 않지만, 잘못된/미래 periodKey를 DB 조회 전에 400으로 걸러낸다.
     resolvePeriodRange(periodType, periodKey);
 
     return this.prisma.insight.findUnique({

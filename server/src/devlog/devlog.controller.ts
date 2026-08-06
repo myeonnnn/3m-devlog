@@ -31,54 +31,48 @@ import { StreakResponseDto } from './dto/streak-response.dto';
 
 @ApiTags('devlogs')
 @ApiCookieAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('devlogs')
 export class DevLogController {
   constructor(private readonly devLogService: DevLogService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({ type: DevLogResponseDto })
   create(@OwnerId() ownerId: string, @Body() dto: CreateDevLogDto) {
     return this.devLogService.create(ownerId, dto);
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: DevLogPageResponseDto })
   findAll(@OwnerId() ownerId: string, @Query() query: FindDevLogsQueryDto) {
     return this.devLogService.findAll(ownerId, query);
   }
 
   @Get('tags/popular')
-  @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: PopularTagResponseDto, isArray: true })
   popularTags(@OwnerId() ownerId: string) {
     return this.devLogService.popularTags(ownerId);
   }
 
   @Get('stats')
-  @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: DevLogStatsResponseDto })
   stats(@OwnerId() ownerId: string) {
     return this.devLogService.stats(ownerId);
   }
 
   @Get('streak')
-  @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: StreakResponseDto })
   streak(@OwnerId() ownerId: string) {
     return this.devLogService.streak(ownerId);
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: DevLogResponseDto })
   findOne(@OwnerId() ownerId: string, @Param('id') id: string) {
     return this.devLogService.findOne(ownerId, id);
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: DevLogResponseDto })
   update(
     @OwnerId() ownerId: string,
@@ -89,7 +83,6 @@ export class DevLogController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
   @HttpCode(204)
   @ApiNoContentResponse()
   remove(@OwnerId() ownerId: string, @Param('id') id: string) {

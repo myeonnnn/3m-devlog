@@ -2,6 +2,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Post,
   Req,
   Res,
@@ -87,20 +88,23 @@ export class AuthController {
   }
 
   @Post('logout')
+  @HttpCode(204)
   @ApiNoContentResponse({ description: '로그아웃 - 쿠키 삭제' })
-  logout(@Res() res: Response) {
+  logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie(COOKIE_NAME, cookieOptions);
-    res.status(204).send();
   }
 
   @Delete('me')
   @UseGuards(JwtAuthGuard)
+  @HttpCode(204)
   @ApiCookieAuth()
   @ApiNoContentResponse({ description: '회원탈퇴 - 계정 및 DevLog 영구 삭제' })
-  async deleteAccount(@OwnerId() userId: string, @Res() res: Response) {
+  async deleteAccount(
+    @OwnerId() userId: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     await this.userService.deleteAccountAndData(userId);
     res.clearCookie(COOKIE_NAME, cookieOptions);
-    res.status(204).send();
   }
 
   private issueCookieAndRedirect(req: Request, res: Response) {

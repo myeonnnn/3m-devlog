@@ -16,27 +16,32 @@ import { LatestInsightResponseDto } from './dto/latest-insight-response.dto';
 
 @ApiTags('insights')
 @ApiCookieAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('insights')
 export class InsightController {
   constructor(private readonly insightService: InsightService) {}
 
   @Post('generate')
-  @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({ type: InsightResponseDto })
   generate(@OwnerId() ownerId: string, @Body() dto: GenerateInsightDto) {
     return this.insightService.generate(ownerId, dto.periodType, dto.periodKey);
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: FindInsightResponseDto })
-  async findByPeriod(@OwnerId() ownerId: string, @Query() dto: FindInsightQueryDto) {
-    const insight = await this.insightService.findByPeriod(ownerId, dto.periodType, dto.periodKey);
+  async findByPeriod(
+    @OwnerId() ownerId: string,
+    @Query() dto: FindInsightQueryDto,
+  ) {
+    const insight = await this.insightService.findByPeriod(
+      ownerId,
+      dto.periodType,
+      dto.periodKey,
+    );
     return { insight };
   }
 
   @Get('latest')
-  @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: LatestInsightResponseDto })
   latest(@OwnerId() ownerId: string) {
     return this.insightService.latest(ownerId);

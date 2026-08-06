@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateDevLogDto } from './dto/create-devlog.dto';
 import { UpdateDevLogDto } from './dto/update-devlog.dto';
@@ -69,6 +70,15 @@ const devLogInclude = {
   tags: { include: { tag: true } },
 } as const;
 
+type DevLogWithTags = Prisma.DevLogGetPayload<{
+  include: typeof devLogInclude;
+}>;
+
+function toDto(devLog: DevLogWithTags) {
+  const { tags, ...rest } = devLog;
+  return { ...rest, tags: tags.map((t) => t.tag.displayName) };
+}
+
 @Injectable()
 export class DevLogService {
   constructor(private readonly prisma: PrismaService) {}
@@ -89,7 +99,7 @@ export class DevLogService {
       include: devLogInclude,
     });
 
-    return this.toDto(devLog);
+    return toDto(devLog);
   }
 
   async findAll(ownerId: string, query: FindDevLogsQueryDto) {
@@ -129,7 +139,7 @@ export class DevLogService {
     const nextCursor = hasMore ? items[items.length - 1].id : null;
 
     return {
-      items: items.map((devLog) => this.toDto(devLog)),
+      items: items.map((devLog) => toDto(devLog)),
       nextCursor,
     };
   }
@@ -164,7 +174,7 @@ export class DevLogService {
 
   async findOne(ownerId: string, id: string) {
     const devLog = await this.findOwnedOrThrow(ownerId, id);
-    return this.toDto(devLog);
+    return toDto(devLog);
   }
 
   async update(ownerId: string, id: string, dto: UpdateDevLogDto) {
@@ -196,7 +206,7 @@ export class DevLogService {
       include: devLogInclude,
     });
 
-    return this.toDto(devLog);
+    return toDto(devLog);
   }
 
   async remove(ownerId: string, id: string) {
@@ -271,15 +281,5 @@ export class DevLogService {
     );
 
     return tags.map((tag) => tag.id);
-  }
-
-  private toDto(
-    devLog: { tags: { tag: { displayName: string } }[] } & Record<
-      string,
-      unknown
-    >,
-  ) {
-    const { tags, ...rest } = devLog;
-    return { ...rest, tags: tags.map((t) => t.tag.displayName) };
   }
 }

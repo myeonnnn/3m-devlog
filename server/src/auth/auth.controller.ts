@@ -8,11 +8,19 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiCookieAuth,
+  ApiExcludeEndpoint,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { UserService } from '../users/user.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { OwnerId } from '../common/decorators/owner-id.decorator';
+import { MeResponseDto } from './dto/me-response.dto';
 
 const COOKIE_NAME = 'access_token';
 
@@ -30,6 +38,7 @@ const cookieOptions = {
   sameSite: isProduction ? ('none' as const) : ('lax' as const),
 };
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -39,26 +48,32 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(AuthGuard('google'))
+  @ApiExcludeEndpoint()
   googleLogin() {}
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
+  @ApiExcludeEndpoint()
   googleCallback(@Req() req: Request, @Res() res: Response) {
     this.issueCookieAndRedirect(req, res);
   }
 
   @Get('kakao')
   @UseGuards(AuthGuard('kakao'))
+  @ApiExcludeEndpoint()
   kakaoLogin() {}
 
   @Get('kakao/callback')
   @UseGuards(AuthGuard('kakao'))
+  @ApiExcludeEndpoint()
   kakaoCallback(@Req() req: Request, @Res() res: Response) {
     this.issueCookieAndRedirect(req, res);
   }
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
+  @ApiCookieAuth()
+  @ApiOkResponse({ type: MeResponseDto })
   async me(@OwnerId() userId: string) {
     const user = await this.userService.findById(userId);
     return (
@@ -72,6 +87,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @ApiNoContentResponse({ description: '로그아웃 - 쿠키 삭제' })
   logout(@Res() res: Response) {
     res.clearCookie(COOKIE_NAME, cookieOptions);
     res.status(204).send();
@@ -79,6 +95,8 @@ export class AuthController {
 
   @Delete('me')
   @UseGuards(JwtAuthGuard)
+  @ApiCookieAuth()
+  @ApiNoContentResponse({ description: '회원탈퇴 - 계정 및 DevLog 영구 삭제' })
   async deleteAccount(@OwnerId() userId: string, @Res() res: Response) {
     await this.userService.deleteAccountAndData(userId);
     res.clearCookie(COOKIE_NAME, cookieOptions);

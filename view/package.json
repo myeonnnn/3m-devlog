@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "generate:api": "openapi-ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.4",
@@ -18,6 +19,7 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@hey-api/openapi-ts": "^0.99.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.2",

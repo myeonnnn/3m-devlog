@@ -1,24 +1,17 @@
-export interface DevLog {
-  id: string;
-  ownerId: string;
-  logDate: string;
-  learnedNote: string;
-  troubleshootingNote: string | null;
-  tomorrowTask: string | null;
-  tags: string[];
-  createdAt: string;
-  updatedAt: string;
-}
+import type {
+  CreateDevLogDto,
+  DevLogPageResponseDto,
+  DevLogResponseDto,
+  DevLogStatsResponseDto,
+  PopularTagResponseDto,
+  UpdateDevLogDto,
+} from '@/lib/api/generated/types.gen';
 
-export interface CreateDevLogInput {
-  logDate: string;
-  learnedNote: string;
-  troubleshootingNote?: string;
-  tomorrowTask?: string;
-  tags?: string[];
-}
+export type DevLog = DevLogResponseDto;
 
-export type UpdateDevLogInput = Partial<CreateDevLogInput>;
+export type CreateDevLogInput = CreateDevLogDto;
+
+export type UpdateDevLogInput = UpdateDevLogDto;
 
 export type DevLogPeriod = 'recent7' | 'recent30' | 'all';
 
@@ -28,17 +21,8 @@ export interface DevLogFilter {
   period?: DevLogPeriod;
 }
 
-export interface PopularTag {
-  tag: string;
-  count: number;
-}
+export type PopularTag = PopularTagResponseDto;
 
-export interface DevLogStats {
-  totalCount: number;
-  topTags: PopularTag[];
-}
+export type DevLogStats = DevLogStatsResponseDto;
 
-export interface DevLogPage {
-  items: DevLog[];
-  nextCursor: string | null;
-}
+export type DevLogPage = DevLogPageResponseDto;

@@ -58,13 +58,16 @@ export const useAuthedDevLogController = (
     },
     submit: (input, editing, onDone) => {
       if (editing) {
-        updateDevLog.mutate({ id: editing.id, input }, { onSuccess: onDone });
+        updateDevLog.mutate(
+          { path: { id: editing.id }, body: input },
+          { onSuccess: onDone },
+        );
       } else {
-        createDevLog.mutate(input, { onSuccess: onDone });
+        createDevLog.mutate({ body: input }, { onSuccess: onDone });
       }
     },
     remove: (devLog) => {
-      deleteDevLog.mutate(devLog.id);
+      deleteDevLog.mutate({ path: { id: devLog.id } });
     },
     resetForm: () => {
       createDevLog.reset();

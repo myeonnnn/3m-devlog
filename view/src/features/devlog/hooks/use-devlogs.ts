@@ -1,25 +1,44 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { devlogApi } from '../api/devlog-api';
 import {
-  CreateDevLogInput,
-  DevLogFilter,
-  UpdateDevLogInput,
-} from '../types';
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type QueryClient,
+} from '@tanstack/react-query';
+import {
+  devLogControllerCreateMutation,
+  devLogControllerFindAllInfiniteOptions,
+  devLogControllerFindAllInfiniteQueryKey,
+  devLogControllerPopularTagsOptions,
+  devLogControllerPopularTagsQueryKey,
+  devLogControllerRemoveMutation,
+  devLogControllerStatsOptions,
+  devLogControllerStatsQueryKey,
+  devLogControllerStreakOptions,
+  devLogControllerStreakQueryKey,
+  devLogControllerUpdateMutation,
+} from '@/lib/api/generated/@tanstack/react-query.gen';
+import { DevLogFilter } from '../types';
 
-const devlogKeys = {
-  all: ['devlogs'] as const,
-  list: (filter: DevLogFilter) => [...devlogKeys.all, 'list', filter] as const,
-  detail: (id: string) => [...devlogKeys.all, 'detail', id] as const,
-  popularTags: () => [...devlogKeys.all, 'popularTags'] as const,
-  stats: () => [...devlogKeys.all, 'stats'] as const,
-  streak: () => [...devlogKeys.all, 'streak'] as const,
-};
+function toQuery(filter: DevLogFilter) {
+  return {
+    search: filter.search || undefined,
+    tag: filter.tag || undefined,
+    period: filter.period && filter.period !== 'all' ? filter.period : undefined,
+  };
+}
+
+function invalidateDevLogQueries(queryClient: QueryClient) {
+  queryClient.invalidateQueries({ queryKey: devLogControllerFindAllInfiniteQueryKey() });
+  queryClient.invalidateQueries({ queryKey: devLogControllerPopularTagsQueryKey() });
+  queryClient.invalidateQueries({ queryKey: devLogControllerStatsQueryKey() });
+  queryClient.invalidateQueries({ queryKey: devLogControllerStreakQueryKey() });
+}
 
 export function useDevLogsQuery(filter: DevLogFilter, options?: { enabled?: boolean }) {
   return useInfiniteQuery({
-    queryKey: devlogKeys.list(filter),
-    queryFn: ({ pageParam }) => devlogApi.list(filter, pageParam),
-    initialPageParam: undefined as string | undefined,
+    ...devLogControllerFindAllInfiniteOptions({ query: toQuery(filter) }),
+    initialPageParam: {},
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     enabled: options?.enabled ?? true,
   });
@@ -27,16 +46,21 @@ export function useDevLogsQuery(filter: DevLogFilter, options?: { enabled?: bool
 
 export function usePopularTagsQuery(options?: { enabled?: boolean }) {
   return useQuery({
-    queryKey: devlogKeys.popularTags(),
-    queryFn: () => devlogApi.popularTags(),
+    ...devLogControllerPopularTagsOptions(),
     enabled: options?.enabled ?? true,
   });
 }
 
 export function useStreakQuery(options?: { enabled?: boolean }) {
   return useQuery({
-    queryKey: devlogKeys.streak(),
-    queryFn: () => devlogApi.streak(),
+    ...devLogControllerStreakOptions(),
+    enabled: options?.enabled ?? true,
+  });
+}
+
+export function useStatsQuery(options?: { enabled?: boolean }) {
+  return useQuery({
+    ...devLogControllerStatsOptions(),
     enabled: options?.enabled ?? true,
   });
 }
@@ -44,38 +68,23 @@ export function useStreakQuery(options?: { enabled?: boolean }) {
 export function useCreateDevLog() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: CreateDevLogInput) => devlogApi.create(input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: devlogKeys.all });
-    },
+    ...devLogControllerCreateMutation(),
+    onSuccess: () => invalidateDevLogQueries(queryClient),
   });
 }
 
 export function useUpdateDevLog() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, input }: { id: string; input: UpdateDevLogInput }) =>
-      devlogApi.update(id, input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: devlogKeys.all });
-    },
-  });
-}
-
-export function useStatsQuery(options?: { enabled?: boolean }) {
-  return useQuery({
-    queryKey: devlogKeys.stats(),
-    queryFn: () => devlogApi.stats(),
-    enabled: options?.enabled ?? true,
+    ...devLogControllerUpdateMutation(),
+    onSuccess: () => invalidateDevLogQueries(queryClient),
   });
 }
 
 export function useDeleteDevLog() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => devlogApi.remove(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: devlogKeys.all });
-    },
+    ...devLogControllerRemoveMutation(),
+    onSuccess: () => invalidateDevLogQueries(queryClient),
   });
 }

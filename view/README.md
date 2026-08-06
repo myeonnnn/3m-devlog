@@ -31,7 +31,7 @@ src/
     └── index.ts         # 공개 API (외부가 실제로 쓰는 것만 export)
 ```
 
-현재 `features/auth`, `features/devlog` 두 모듈이 있다.
+현재 `features/auth`, `features/devlog`, `features/insight` 세 모듈이 있다.
 
 UI 작업 시 컬러/타이포/컴포넌트 토큰은 [`../docs/design-system.md`](../docs/design-system.md)를 따른다.
 
@@ -84,14 +84,17 @@ npm run test:ui      # UI 모드
 
 ## 아키텍처 노트
 
-프레젠테이션과 비즈니스 로직(데이터 패칭/뮤테이션)을 계층으로 분리했다.
+각 `features/<name>/` 안에서 프레젠테이션과 비즈니스 로직(데이터 패칭/뮤테이션)을 계층으로 분리한다 (폴더 구조·판단 기준은 위 "폴더 구조", [`CLAUDE.md`](./CLAUDE.md) 참고).
 
-- `src/lib/`: 도메인 타입, 순수 fetch API 클라이언트(`api-client.ts`, `devlog-api.ts`, `auth-api.ts`), 게스트 로컬 저장소(`guest-storage.ts`)
-- `src/hooks/use-devlogs.ts`, `use-auth.ts`, `use-guest-devlogs.ts`: React Query(또는 로컬 상태) 훅 — 비즈니스 로직 계층
-- `src/components/devlog/`, `src/components/auth/`: 프레젠테이션 전용 컴포넌트 (props/콜백으로만 동작, 데이터 패칭 없음)
-- `src/app/page.tsx`: 인증 여부에 따라 API 훅 / 게스트 훅 중 실제 데이터 소스만 분기 (컴포넌트는 공용), 비로그인 시 `GuestBanner` 노출
+- `features/auth/`: `hooks/use-auth.ts`(로그인 상태/로그아웃/탈퇴), `components/guest-banner.tsx`
+- `features/devlog/`: `hooks/use-devlogs.ts`(hey-api가 생성한 queryOptions/mutationOptions 기반, 아래 참고) + `hooks/use-devlog-controller.ts`(인증/게스트 여부에 따라 authed·guest 컨트롤러를 하나의 인터페이스로 합침), `api/guest-storage.ts`(비로그인 사용자용 localStorage 저장소), `components/`(검색바·태그칩·목록·작성 모달)
+- `features/insight/`: `hooks/use-insights.ts`, `hooks/use-insight-controller.ts`, AI 인사이트 모달/엔트리 버튼 컴포넌트
+- `src/lib/api-client.ts`: 순정 fetch 기반 요청 래퍼(쿠키 인증, `ApiError`) — auth/insight feature가 사용
+- `src/lib/api/generated/`: hey-api가 생성한 타입/SDK/React Query 훅 (devlog feature만, 위 "API 타입/SDK 생성" 참고). `src/lib/api/client-config.ts`에서 baseUrl/credentials 및 에러 메시지 정규화(class-validator의 배열 message를 문자열로 join) 설정
+- `src/lib/providers.tsx`: `QueryClientProvider` 등 앱 전역 프로바이더, `client-config.ts`를 side-effect import해서 부팅 시 hey-api 클라이언트 설정 적용
+- `src/app/page.tsx`: 메인 화면 — `features/devlog`, `features/auth`, `features/insight`의 공개 API(훅+컴포넌트)를 조립. 인증 여부에 따라 devlog의 authed/guest 컨트롤러 중 실제 데이터 소스만 분기, 비로그인 시 `GuestBanner` 노출
 - `src/app/mypage/page.tsx`: 마이페이지 — 프로필/통계 조회, 로그아웃/회원탈퇴
-- `src/lib/api/generated/`: hey-api가 생성한 타입/SDK/React Query 훅 (devlog feature만, 위 "API 타입/SDK 생성" 참고). `src/lib/api/client-config.ts`에서 baseUrl/credentials 및 에러 메시지 정규화 설정
+- `src/components/`: feature에 속하지 않는 전역 UI (`Logo`, `Button`, `Input` 등)
 
 ## Lint
 

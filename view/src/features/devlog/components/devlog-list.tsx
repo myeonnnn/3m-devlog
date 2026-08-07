@@ -7,7 +7,7 @@ interface DevLogListProps {
   isLoading: boolean;
   error: Error | null;
   onEdit: (devLog: DevLog) => void;
-  onDelete: (devLog: DevLog) => void;
+  onDelete: (id: string) => void;
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
   onLoadMore?: () => void;

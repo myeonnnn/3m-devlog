@@ -68,13 +68,13 @@ export default function Home() {
     controller.resetForm();
   };
 
-  const handleDelete = (devLog: DevLog) => {
+  const handleDelete = (id: string) => {
     if (!confirm('이 로그를 삭제할까요?')) return;
-    controller.remove(devLog);
+    controller.remove(id);
   };
 
   const handleFormSubmit = (input: CreateDevLogInput) => {
-    controller.submit(input, editingDevLog, closeForm);
+    controller.submit(input, editingDevLog?.id ?? null, closeForm);
   };
 
   if (meQuery.isLoading) {

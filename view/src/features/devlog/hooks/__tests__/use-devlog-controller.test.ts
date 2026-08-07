@@ -40,7 +40,7 @@ describe('useGuestDevLogController', () => {
     act(() => {
       result.current.submit(
         { logDate: '2026-07-30', learnedNote: '수정된 내용' },
-        fakeDevLog, // 저장소에 없는 id라서 update가 실패한다
+        fakeDevLog.id, // 저장소에 없는 id라서 update가 실패한다
         onDone,
       );
     });
@@ -61,7 +61,7 @@ describe('useGuestDevLogController', () => {
     const { result } = renderHook(() => useGuestDevLogController({}));
 
     act(() => {
-      result.current.submit({ logDate: '2026-07-30', learnedNote: '수정된 내용' }, fakeDevLog, vi.fn());
+      result.current.submit({ logDate: '2026-07-30', learnedNote: '수정된 내용' }, fakeDevLog.id, vi.fn());
     });
     expect(result.current.formError).not.toBeNull();
 

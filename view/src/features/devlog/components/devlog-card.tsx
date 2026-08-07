@@ -4,7 +4,7 @@ import { toLogFilename } from '../rules/devlog-form';
 interface DevLogCardProps {
   devLog: DevLog;
   onEdit: (devLog: DevLog) => void;
-  onDelete: (devLog: DevLog) => void;
+  onDelete: (id: string) => void;
 }
 
 export function DevLogCard({ devLog, onEdit, onDelete }: DevLogCardProps) {
@@ -25,7 +25,7 @@ export function DevLogCard({ devLog, onEdit, onDelete }: DevLogCardProps) {
           </button>
           <button
             type="button"
-            onClick={() => onDelete(devLog)}
+            onClick={() => onDelete(devLog.id)}
             className="flex h-11 items-center px-2 text-dim hover:text-danger"
           >
             rm

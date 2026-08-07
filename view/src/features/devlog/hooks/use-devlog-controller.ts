@@ -24,8 +24,8 @@ export interface DevLogController {
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   fetchNextPage: () => void;
-  submit: (input: CreateDevLogInput, editing: DevLog | null, onDone: () => void) => void;
-  remove: (devLog: DevLog) => void;
+  submit: (input: CreateDevLogInput, editingId: string | null, onDone: () => void) => void;
+  remove: (id: string) => void;
   resetForm: () => void;
 }
 
@@ -56,18 +56,18 @@ export const useAuthedDevLogController = (
     fetchNextPage: () => {
       devLogsQuery.fetchNextPage();
     },
-    submit: (input, editing, onDone) => {
-      if (editing) {
+    submit: (input, editingId, onDone) => {
+      if (editingId) {
         updateDevLog.mutate(
-          { path: { id: editing.id }, body: input },
+          { path: { id: editingId }, body: input },
           { onSuccess: onDone },
         );
       } else {
         createDevLog.mutate({ body: input }, { onSuccess: onDone });
       }
     },
-    remove: (devLog) => {
-      deleteDevLog.mutate({ path: { id: devLog.id } });
+    remove: (id) => {
+      deleteDevLog.mutate({ path: { id } });
     },
     resetForm: () => {
       createDevLog.reset();
@@ -91,12 +91,12 @@ export const useGuestDevLogController = (filter: DevLogFilter): DevLogController
     hasNextPage: false,
     isFetchingNextPage: false,
     fetchNextPage: () => {},
-    submit: (input, editing, onDone) => {
-      const succeeded = editing ? guest.update(editing.id, input) : guest.create(input);
+    submit: (input, editingId, onDone) => {
+      const succeeded = editingId ? guest.update(editingId, input) : guest.create(input);
       if (succeeded) onDone();
     },
-    remove: (devLog) => {
-      guest.remove(devLog.id);
+    remove: (id) => {
+      guest.remove(id);
     },
     resetForm: () => {
       guest.clearFormError();

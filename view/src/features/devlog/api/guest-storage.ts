@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import {
   CreateDevLogInput,
   DevLog,
@@ -9,6 +10,22 @@ import { normalizeTag } from '../rules/devlog-form';
 import { resolvePeriodCutoff } from '../rules/period';
 
 const STORAGE_KEY = 'devlog:guest-logs';
+
+// localStorage는 사용자가 devtools 등으로 직접 조작할 수 있는 외부 경계라,
+// 서버 응답(hey-api가 Swagger 스펙에서 타입을 생성해주는 영역)과 달리
+// 여기서 읽은 값의 실제 모양을 보장해주는 컴파일타임 타입이 없다.
+const storedDevLogSchema = z.object({
+  id: z.string(),
+  ownerId: z.string(),
+  logDate: z.string(),
+  learnedNote: z.string(),
+  troubleshootingNote: z.string().nullable(),
+  tomorrowTask: z.string().nullable(),
+  tags: z.array(z.string()),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+const storedDevLogsSchema = z.array(storedDevLogSchema);
 
 /** 대소문자 무관 중복 제거, 최초 입력값을 표시용으로 유지 (서버 쪽 규칙과 동일). */
 function dedupeTags(rawTags: string[]): string[] {
@@ -26,7 +43,9 @@ function readAll(): DevLog[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as DevLog[]) : [];
+    if (!raw) return [];
+    const parsed = storedDevLogsSchema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data : [];
   } catch {
     return [];
   }

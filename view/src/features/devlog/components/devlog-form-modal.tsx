@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { CreateDevLogInput, DevLog } from '../types';
 import {
   MAX_TAGS,
@@ -8,7 +10,8 @@ import {
   minLogDate,
   normalizeTag,
   toLogFilename,
-  validateDevLogForm,
+  devLogFormSchema,
+  DevLogFormValues,
 } from '../rules/devlog-form';
 import { toDateInputValue } from '@/utils/date';
 import { Button } from '@/components/button';
@@ -29,54 +32,62 @@ export function DevLogFormModal({
   onSubmit,
   onClose,
 }: DevLogFormModalProps) {
-  const [logDate, setLogDate] = useState(
-    initial ? toDateInputValue(new Date(initial.logDate)) : toDateInputValue(new Date()),
-  );
-  const [learnedNote, setLearnedNote] = useState(initial?.learnedNote ?? '');
-  const [troubleshootingNote, setTroubleshootingNote] = useState(
-    initial?.troubleshootingNote ?? '',
-  );
-  const [tomorrowTask, setTomorrowTask] = useState(initial?.tomorrowTask ?? '');
-  const [tags, setTags] = useState<string[]>(initial?.tags ?? []);
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm<DevLogFormValues>({
+    resolver: zodResolver(devLogFormSchema),
+    defaultValues: {
+      logDate: initial ? toDateInputValue(new Date(initial.logDate)) : toDateInputValue(new Date()),
+      learnedNote: initial?.learnedNote ?? '',
+      troubleshootingNote: initial?.troubleshootingNote ?? '',
+      tomorrowTask: initial?.tomorrowTask ?? '',
+      tags: initial?.tags ?? [],
+    },
+  });
+
   const [tagInput, setTagInput] = useState('');
-  const [validationError, setValidationError] = useState<string | null>(null);
+  const [tagError, setTagError] = useState<string | null>(null);
+
+  const logDate = watch('logDate');
+  const tags = watch('tags');
 
   // REVISIT: addTag도 최대 개수/중복 판단이라는 비즈니스 규칙을 담고 있어
-  // handleSubmit처럼 순수 함수로 뽑는 걸 고려했으나, 분기별로 tagInput/validationError를
+  // handleSubmit처럼 순수 함수로 뽑는 걸 고려했으나, 분기별로 tagInput/tagError를
   // 서로 다르게(또는 그대로 안) 리셋하는 미묘한 차이가 있어 그대로 함수로 추출하면
   // 그 비대칭 동작을 깨뜨릴 위험이 있다. 이득 대비 리스크가 커서 보류.
   const addTag = () => {
     const trimmed = normalizeTag(tagInput);
     if (!trimmed) return;
-    if (tags.includes(trimmed)) {
+    const currentTags = getValues('tags');
+    if (currentTags.includes(trimmed)) {
       setTagInput('');
       return;
     }
-    if (tags.length >= MAX_TAGS) {
-      setValidationError(`태그는 최대 ${MAX_TAGS}개까지만 붙일 수 있어요.`);
+    if (currentTags.length >= MAX_TAGS) {
+      setTagError(`태그는 최대 ${MAX_TAGS}개까지만 붙일 수 있어요.`);
       return;
     }
-    setTags([...tags, trimmed]);
+    setValue('tags', [...currentTags, trimmed]);
     setTagInput('');
-    setValidationError(null);
+    setTagError(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const submissionError = validateDevLogForm(learnedNote, logDate, minLogDate, maxLogDate);
-    if (submissionError) {
-      setValidationError(submissionError);
-      return;
-    }
-    setValidationError(null);
+  const onValid = (data: DevLogFormValues) => {
     onSubmit({
-      logDate,
-      learnedNote: learnedNote.trim(),
-      troubleshootingNote: troubleshootingNote.trim() || undefined,
-      tomorrowTask: tomorrowTask.trim() || undefined,
-      tags,
+      logDate: data.logDate,
+      learnedNote: data.learnedNote,
+      troubleshootingNote: data.troubleshootingNote || undefined,
+      tomorrowTask: data.tomorrowTask || undefined,
+      tags: data.tags,
     });
   };
+
+  const formError = errors.learnedNote?.message ?? errors.logDate?.message ?? tagError ?? error;
 
   return (
     <div className="fixed inset-0 z-50 sm:flex sm:items-center sm:justify-center sm:bg-black/70 sm:p-4">
@@ -85,43 +96,25 @@ export function DevLogFormModal({
           $ vi {initial ? toLogFilename(initial.logDate) : logDate}.log
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-4 flex flex-1 flex-col gap-4">
+        <form onSubmit={handleSubmit(onValid)} className="mt-4 flex flex-1 flex-col gap-4">
           <div>
             <label className="text-sm text-signal">date&gt;</label>
-            <Input
-              type="date"
-              value={logDate}
-              onChange={(e) => setLogDate(e.target.value)}
-              min={minLogDate}
-              max={maxLogDate}
-            />
+            <Input type="date" min={minLogDate} max={maxLogDate} {...register('logDate')} />
           </div>
 
           <div>
             <label className="text-sm text-signal">learned&gt; (필수)</label>
-            <Textarea
-              value={learnedNote}
-              onChange={(e) => setLearnedNote(e.target.value)}
-              rows={3}
-            />
+            <Textarea rows={3} {...register('learnedNote')} />
           </div>
 
           <div>
             <label className="text-sm text-signal">bug&gt;</label>
-            <Textarea
-              value={troubleshootingNote}
-              onChange={(e) => setTroubleshootingNote(e.target.value)}
-              rows={2}
-            />
+            <Textarea rows={2} {...register('troubleshootingNote')} />
           </div>
 
           <div>
             <label className="text-sm text-signal">next&gt;</label>
-            <Textarea
-              value={tomorrowTask}
-              onChange={(e) => setTomorrowTask(e.target.value)}
-              rows={2}
-            />
+            <Textarea rows={2} {...register('tomorrowTask')} />
           </div>
 
           <div>
@@ -154,8 +147,11 @@ export function DevLogFormModal({
                     <button
                       type="button"
                       onClick={() => {
-                        setTags(tags.filter((t) => t !== tag));
-                        setValidationError(null);
+                        setValue(
+                          'tags',
+                          tags.filter((t) => t !== tag),
+                        );
+                        setTagError(null);
                       }}
                       aria-label={`${tag} 태그 삭제`}
                       className="flex h-6 w-6 items-center justify-center text-dim hover:text-danger"
@@ -168,9 +164,7 @@ export function DevLogFormModal({
             )}
           </div>
 
-          {(validationError || error) && (
-            <p className="text-sm text-danger">{validationError ?? error}</p>
-          )}
+          {formError && <p className="text-sm text-danger">{formError}</p>}
 
           <div className="mt-auto flex justify-end gap-3 pt-2">
             <Button variant="ghost" onClick={onClose}>

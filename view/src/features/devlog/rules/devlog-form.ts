@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { toDateInputValue } from '@/utils/date';
 
 export const MAX_TAGS = 5;
@@ -13,17 +14,16 @@ export const minLogDate = (() => {
 
 export const normalizeTag = (raw: string) => raw.trim().replace(/^#/, '');
 
-export const validateDevLogForm = (
-  learnedNote: string,
-  logDate: string,
-  minLogDate: string,
-  maxLogDate: string,
-): string | null => {
-  if (!learnedNote.trim()) {
-    return '오늘 배운 점은 필수 입력이에요.';
-  }
-  if (logDate < minLogDate || logDate > maxLogDate) {
-    return '날짜는 오늘부터 과거 최대 1개월 이내여야 해요.';
-  }
-  return null;
-};
+export const devLogFormSchema = z.object({
+  logDate: z
+    .string()
+    .refine((value) => value >= minLogDate && value <= maxLogDate, {
+      message: '날짜는 오늘부터 과거 최대 1개월 이내여야 해요.',
+    }),
+  learnedNote: z.string().trim().min(1, '오늘 배운 점은 필수 입력이에요.'),
+  troubleshootingNote: z.string().trim().optional(),
+  tomorrowTask: z.string().trim().optional(),
+  tags: z.array(z.string()).max(MAX_TAGS, `태그는 최대 ${MAX_TAGS}개까지만 붙일 수 있어요.`),
+});
+
+export type DevLogFormValues = z.infer<typeof devLogFormSchema>;

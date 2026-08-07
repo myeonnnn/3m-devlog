@@ -26,3 +26,10 @@
 ---
 
 <!-- 아래부터 실제 결정을 번호 순으로 append한다. 과거 결정을 소급해서 채울 땐, 그 결정이 내려질 당시의 맥락/트레이드오프를 정확히 아는 경우에만 작성한다 (추측으로 채우지 않는다). -->
+
+## ADR-0001: view 폼에 React Hook Form + Zod 도입 (2026-08-07, Accepted)
+**맥락**: `DevLogFormModal`이 필드마다 `useState`를 나열하고, 검증은 `validateDevLogForm`이라는 수기 순수 함수 하나로 처리하고 있었다. 또한 게스트 모드의 `guestStorage`는 `localStorage`에서 읽은 값을 `JSON.parse(raw) as DevLog[]`로 타입 단언만 하고 실제 모양은 검사하지 않아, devtools 등으로 저장소를 직접 조작하면 깨진 데이터를 그대로 신뢰하는 구멍이 있었다.
+
+**결정**: 클라이언트 폼 상태 관리에 `react-hook-form`을, 런타임 스키마 검증에 `zod`를 도입한다. 적용 범위는 **폼 입력**(`DevLogFormModal` → `devLogFormSchema`)과 **게스트 localStorage 읽기 경계**(`guestStorage.readAll` → `storedDevLogsSchema`)로 한정한다. 인증 모드에서 서버가 응답하는 DevLog 데이터는 대상에서 제외한다 — `hey-api`가 Swagger 스펙에서 이미 컴파일타임 타입(`DevLogResponseDto` 등)을 생성해주고 있어서, 여기에 zod 스키마까지 추가하면 같은 모양을 수동으로 한 번 더 정의/유지해야 하는 이중 관리 비용이 생기기 때문이다.
+
+**트레이드오프**: 서버 응답까지 zod로 감싸는 안(런타임에도 서버 계약을 검증)을 검토했으나 기각했다 — hey-api 코드젠을 도입한 최근 결정(devlog API 레이어를 hey-api SDK + TanStack Query로 통일)과 방향이 어긋나고, 필드 추가/변경 시 두 곳(OpenAPI 스펙 → hey-api 생성 타입, 손으로 쓴 zod 스키마)을 계속 동기화해야 한다. 대신 실제로 컴파일타임 보장이 전혀 없는 지점(사용자 입력, 외부에서 조작 가능한 localStorage)에만 zod를 적용해 검증 가치가 높은 곳에 비용을 집중시켰다.

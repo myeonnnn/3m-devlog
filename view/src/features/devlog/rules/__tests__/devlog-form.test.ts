@@ -1,33 +1,52 @@
 import { describe, expect, it } from 'vitest';
-import { maxLogDate, minLogDate, normalizeTag, toLogFilename, validateDevLogForm } from '../devlog-form';
+import { devLogFormSchema, maxLogDate, normalizeTag, toLogFilename } from '../devlog-form';
 
-describe('validateDevLogForm', () => {
+function parse(learnedNote: string, logDate: string) {
+  return devLogFormSchema.safeParse({
+    learnedNote,
+    logDate,
+    troubleshootingNote: '',
+    tomorrowTask: '',
+    tags: [],
+  });
+}
+
+describe('devLogFormSchema', () => {
   it('learnedNote가 비어있으면 에러를 반환한다', () => {
-    expect(validateDevLogForm('', maxLogDate, minLogDate, maxLogDate)).toBe(
-      '오늘 배운 점은 필수 입력이에요.',
-    );
+    const result = parse('', maxLogDate);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('오늘 배운 점은 필수 입력이에요.');
+    }
   });
 
   it('learnedNote가 공백만 있어도 필수 입력 에러를 반환한다', () => {
-    expect(validateDevLogForm('   ', maxLogDate, minLogDate, maxLogDate)).toBe(
-      '오늘 배운 점은 필수 입력이에요.',
-    );
+    const result = parse('   ', maxLogDate);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('오늘 배운 점은 필수 입력이에요.');
+    }
   });
 
   it('허용 범위보다 과거인 날짜는 거부한다', () => {
-    expect(validateDevLogForm('배운 것', '2000-01-01', minLogDate, maxLogDate)).toBe(
-      '날짜는 오늘부터 과거 최대 1개월 이내여야 해요.',
-    );
+    const result = parse('배운 것', '2000-01-01');
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('날짜는 오늘부터 과거 최대 1개월 이내여야 해요.');
+    }
   });
 
   it('허용 범위보다 미래인 날짜는 거부한다', () => {
-    expect(validateDevLogForm('배운 것', '9999-12-31', minLogDate, maxLogDate)).toBe(
-      '날짜는 오늘부터 과거 최대 1개월 이내여야 해요.',
-    );
+    const result = parse('배운 것', '9999-12-31');
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('날짜는 오늘부터 과거 최대 1개월 이내여야 해요.');
+    }
   });
 
   it('내용이 있고 날짜가 허용 범위 안이면 통과한다', () => {
-    expect(validateDevLogForm('배운 것', maxLogDate, minLogDate, maxLogDate)).toBeNull();
+    const result = parse('배운 것', maxLogDate);
+    expect(result.success).toBe(true);
   });
 });
 
